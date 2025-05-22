@@ -222,7 +222,6 @@ function completarPedido(i) {
   renderPedidosCocina();
 }
 
-// ── ADMIN ─────────────────────────────────────────────────────────────
 // ================= ADMIN =====================
 
 // Inventario: mostrar y editar
@@ -269,11 +268,37 @@ function renderHistorialPedidos() {
     li.className = "list-group-item";
     li.textContent = `#${i + 1} | ${pedido.fecha} | ${pedido.nombre}`;
     lista.appendChild(li);
-    total += 100; // Precio fijo si no se guarda monto
+    total += 100; // Precio fijo por producto
   });
 
   totalSpan.textContent = total.toFixed(2);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderHistorialPedidos();
+
+  const btnPDF = document.getElementById("btnPDF");
+  if (btnPDF) {
+    btnPDF.addEventListener("click", () => {
+      const contenido = document.getElementById("contenidoHistorial");
+      if (!contenido || contenido.innerHTML.trim() === "") {
+        alert("No hay contenido para exportar.");
+        return;
+      }
+
+      const opciones = {
+        margin: 0.5,
+        filename: 'historial_pedidos.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opciones).from(contenido).save();
+    });
+  }
+});
+
 
 // Descargar PDF del historial
 function descargarHistorialPDF() {
