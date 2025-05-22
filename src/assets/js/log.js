@@ -67,9 +67,15 @@ function renderMenu() {
   });
 }
 
+// ── AGREGAR EL PEDIDO ────────────────────────────────────────────────────
 function agregarAlPedido(id) {
   const pedido = getPedido();
   const producto = productos.find(p => p.id === id);
+
+  const ingredientesQuitados = producto.ingredientes.filter(ingrediente => {
+    const checkbox = document.getElementById(`check-${id}-${ingrediente}`);
+    return checkbox && !checkbox.checked;
+  });
 
   const ingredientesSeleccionados = producto.ingredientes.filter(ingrediente => {
     const checkbox = document.getElementById(`check-${id}-${ingrediente}`);
@@ -77,7 +83,9 @@ function agregarAlPedido(id) {
   });
 
   const extraInput = document.getElementById(`extra-${id}`);
+  const ingredientesAgregados = [];
   if (extraInput && extraInput.value.trim() !== "") {
+    ingredientesAgregados.push(extraInput.value.trim());
     ingredientesSeleccionados.push(extraInput.value.trim());
   }
 
@@ -85,7 +93,9 @@ function agregarAlPedido(id) {
     id: producto.id,
     nombre: producto.nombre,
     imagen: producto.imagen,
-    ingredientes: ingredientesSeleccionados
+    ingredientes: ingredientesSeleccionados,
+    agregados: ingredientesAgregados,
+    quitados: ingredientesQuitados
   };
 
   pedido.push(pedidoFinal);
@@ -104,42 +114,47 @@ function actualizarContador() {
 function renderPedidoMesero() {
   const cont = document.getElementById("pedidoMesero");
   if (!cont) return;
-  const saludo = document.getElementById("saludoMesero");
-  if (saludo) saludo.textContent = `Hola, ${localStorage.getItem("usuario")} — Mesa ${localStorage.getItem("mesa")}`;
-  const pedido = getPedido(); cont.innerHTML = "";
+
+  const usuario = localStorage.getItem("usuario");
+  const mesa = localStorage.getItem("mesa");
+  const pedido = getPedido();
+
+  cont.innerHTML = "";
+
   if (!pedido.length) {
     cont.innerHTML = "<p>No hay productos.</p>";
     return;
   }
-  const tbl = document.createElement("table"); tbl.className = "table";
-  tbl.innerHTML = `<thead><tr><th>Producto</th><th>Acción</th></tr></thead>`;
-  const tb = document.createElement("tbody");
-  pedido.forEach((it, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${it.nombre}</td><td>
-      <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${i})">Eliminar</button>
-    </td>`;
-    tb.appendChild(tr);
+
+  cont.innerHTML += `
+    <p><strong>Cliente:</strong> ${usuario}</p>
+    <p><strong>Mesa:</strong> ${mesa}</p>
+    <h4>Productos:</h4>
+  `;
+
+  pedido.forEach((item, i) => {
+    const listaIngredientes = item.ingredientes?.length
+      ? item.ingredientes.join(", ")
+      : "Sin ingredientes";
+
+    const agregados = item.agregados?.length
+      ? item.agregados.join(", ")
+      : "Ninguno";
+
+    const quitados = item.quitados?.length
+      ? item.quitados.join(", ")
+      : "Ninguno";
+
+    cont.innerHTML += `
+      <div class="producto">
+        <p><strong>${i + 1}. ${item.nombre}</strong></p>
+        <p>🧂 Ingredientes actuales: ${listaIngredientes}</p>
+        <p style="color:green;">➕ Agregados: ${agregados}</p>
+        <p style="color:red;">➖ Quitados: ${quitados}</p>
+        <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${i})">Eliminar</button>
+      </div>
+    `;
   });
-  tbl.appendChild(tb); cont.appendChild(tbl);
-}
-
-function eliminarProducto(i) {
-  const pd = getPedido(); pd.splice(i, 1); setPedido(pd); renderPedidoMesero(); actualizarContador();
-}
-
-function vaciarPedido() {
-  if (confirm("Vaciar pedido?")) {
-    setPedido([]); renderPedidoMesero(); actualizarContador();
-  }
-}
-
-function enviarACocina() {
-  const pd = getPedido();
-  if (!pd.length) return alert("No hay nada.");
-  const k = getKitchen();
-  k.push({ mesa: localStorage.getItem("mesa"), usuario: localStorage.getItem("usuario"), items: pd, timestamp: Date.now() });
-  setKitchen(k); setPedido([]); renderPedidoMesero(); actualizarContador(); alert("Enviado a cocina");
 }
 
 // ── COCINA ────────────────────────────────────────────────────────────
