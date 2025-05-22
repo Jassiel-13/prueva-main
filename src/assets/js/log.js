@@ -509,3 +509,101 @@ function descargarReporteComoCSV(data) {
   document.body.removeChild(link);
 }
 
+function generarResumenPorDia() {
+  const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
+  const resumen = {}; // {fecha: {producto: cantidad}}
+
+  historial.forEach(pedido => {
+    const fecha = pedido.fecha;
+    const producto = pedido.producto;
+    const cantidad = pedido.cantidad;
+
+    if (!resumen[fecha]) resumen[fecha] = {};
+    if (!resumen[fecha][producto]) resumen[fecha][producto] = 0;
+
+    resumen[fecha][producto] += cantidad;
+  });
+
+  // Mostrar tabla resumen
+  const tablaResumen = document.getElementById('tablaResumen');
+  tablaResumen.innerHTML = '';
+
+  const fechasOrdenadas = Object.keys(resumen).sort();
+  fechasOrdenadas.forEach(fecha => {
+    for (const producto in resumen[fecha]) {
+      const fila = document.createElement('tr');
+      fila.innerHTML = `
+        <td>${fecha}</td>
+        <td>${producto}</td>
+        <td>${resumen[fecha][producto]}</td>
+      `;
+      tablaResumen.appendChild(fila);
+    }
+  });
+
+  // Generar gráfica
+  graficarResumen(resumen);
+}
+function graficarResumen(resumen) {
+  const datosPorFecha = {};
+
+  for (const fecha in resumen) {
+    let totalPorFecha = 0;
+    for (const producto in resumen[fecha]) {
+      totalPorFecha += resumen[fecha][producto];
+    }
+    datosPorFecha[fecha] = totalPorFecha;
+  }
+
+  const fechas = Object.keys(datosPorFecha).sort();
+  const cantidades = fechas.map(f => datosPorFecha[f]);
+
+  const ctx = document.getElementById('graficaResumen').getContext('2d');
+
+  // Destruir gráfica anterior si ya existe
+  if (window.grafica) window.grafica.destroy();
+
+  window.grafica = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: fechas,
+      datasets: [{
+        label: 'Productos vendidos por día',
+        data: cantidades,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { precision: 0 }
+        }
+      }
+    }
+  });
+}
+function descargarResumenCSV() {
+  const tabla = document.getElementById("tablaResumen");
+  const filas = tabla.querySelectorAll("tr");
+  let csv = "Fecha,Producto,Cantidad\n";
+
+  filas.forEach(fila => {
+    const celdas = fila.querySelectorAll("td");
+    if (celdas.length > 0) {
+      csv += `${celdas[0].innerText},${celdas[1].innerText},${celdas[2].innerText}\n`;
+    }
+  });
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const enlace = document.createElement("a");
+  enlace.href = url;
+  enlace.download = "resumen_ventas.csv";
+  enlace.click();
+}
+
+
