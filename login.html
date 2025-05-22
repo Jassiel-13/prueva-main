@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="login-container">
-        <h2>Login</h2>
+        <h2>Iniciar Sesion</h2>
         <input type="text" id="usuario" placeholder="Usuario" required>
         <input type="password" id="contrasena" placeholder="Contraseña" required>
         <button onclick="iniciarSesion()">Ingresar</button>
@@ -19,7 +19,7 @@
 <script>
     // Verificar si hay un usuario autenticado
     window.onload = function() {
-        const usuario = localStorage.getItem('usuario');
+        const usuario = localStorage.setItem('usuario');
         if (!usuario) {
             // Si no hay usuario en el localStorage, redirigir a la página de login
             window.location.href = "login.html";
