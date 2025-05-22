@@ -224,23 +224,61 @@ function updateStock(id) {
 
 // ── REPORTES ──────────────────────────────────────────────────────────
 function renderReportes() {
-  const cont = document.getElementById("reportes"); if (!cont) return;
+  const cont = document.getElementById("reportes");
+  if (!cont) return;
+
   const comp = JSON.parse(localStorage.getItem("kitchenCompleted")) || [];
   if (!comp.length) {
     cont.innerHTML = "<p>No hay ventas.</p>";
     return;
   }
-  const porDia = comp.reduce((a, p) => {
-    const d = new Date(p.timestamp).toLocaleDateString();
-    a[d] = a[d] || { total: 0, items: [] };
-    a[d].total += p.items.length * 100;
-    a[d].items.push(...p.items);
-    return a;
-  }, {});
-  cont.innerHTML = Object.entries(porDia).map(([d, inf]) => `
-    <div class="card mb-3"><div class="card-header">${d} — $${inf.total}</div>
-      <ul class="list-group list-group-flush">${inf.items.map(i => `<li class="list-group-item">${i.nombre}</li>`).join("")}</ul>
-    </div>`).join("");
+
+  // Agrupar ventas por día y por producto
+  const ventasPorDia = {};
+
+  comp.forEach(pedido => {
+    const dia = new Date(pedido.timestamp).toLocaleDateString();
+
+    if (!ventasPorDia[dia]) ventasPorDia[dia] = {};
+
+    pedido.items.forEach(item => {
+      if (!ventasPorDia[dia][item.nombre]) ventasPorDia[dia][item.nombre] = 0;
+      ventasPorDia[dia][item.nombre]++;
+    });
+  });
+
+  // Construir el HTML con tablas por día
+  cont.innerHTML = "";
+
+  Object.entries(ventasPorDia).forEach(([dia, productos]) => {
+    const card = document.createElement("div");
+    card.className = "card mb-3";
+
+    const cardHeader = document.createElement("div");
+    cardHeader.className = "card-header";
+    cardHeader.textContent = `Ventas del día ${dia}`;
+
+    const table = document.createElement("table");
+    table.className = "table table-striped";
+
+    const thead = document.createElement("thead");
+    thead.innerHTML = `<tr><th>Producto</th><th>Cantidad vendida</th></tr>`;
+
+    const tbody = document.createElement("tbody");
+
+    Object.entries(productos).forEach(([producto, cantidad]) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${producto}</td><td>${cantidad}</td>`;
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    card.appendChild(cardHeader);
+    card.appendChild(table);
+    cont.appendChild(card);
+  });
 }
 
 // ── Inicialización ────────────────────────────────────────────────────
