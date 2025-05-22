@@ -12,8 +12,9 @@
 <body class="container py-4">
 
   <h2>Gestión de Inventario</h2>
-  <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Cerrar sesión</button>
+  <button class="btn btn-danger mb-3" onclick="cerrarSesion()">Cerrar sesión</button>
 
+  <!-- Tabla de Inventario -->
   <table class="table table-striped">
     <thead>
       <tr>
@@ -35,9 +36,29 @@
       <ul id="listaHistorial" class="list-group mb-3"></ul>
       <p><strong>Total Recolectado:</strong> $<span id="totalRecaudado">0.00</span></p>
     </div>
-    <button id="btnPDF" class="btn btn-danger">Descargar PDF</button>
+    <button id="btnPDF" class="btn btn-warning mb-4">Descargar Historial en PDF</button>
+
+    <hr>
+
+    <!-- Resumen por día -->
+    <h4 class="mt-4">Resumen de productos vendidos por día</h4>
+    <div id="resumenVentas">
+      <table class="table table-bordered mt-3">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Producto</th>
+            <th>Cantidad Total</th>
+          </tr>
+        </thead>
+        <tbody id="tablaResumen"></tbody>
+      </table>
+      <button class="btn btn-success mb-4" id="descargarResumen">Descargar Resumen en PDF</button>
+    </div>
   </div>
 
+  <!-- Scripts -->
+  <script src="src/assets/js/log.js"></script>
   <script>
     // Mostrar historial
     function mostrarHistorial() {
@@ -59,6 +80,39 @@
       totalRecaudado.textContent = total.toFixed(2);
     }
 
+    // Generar resumen por día
+    function generarResumenPorDia() {
+      const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
+      const resumen = {}; // {fecha: {producto: cantidad}}
+
+      historial.forEach(pedido => {
+        const fecha = pedido.fecha;
+        const producto = pedido.producto;
+        const cantidad = pedido.cantidad;
+
+        if (!resumen[fecha]) resumen[fecha] = {};
+        if (!resumen[fecha][producto]) resumen[fecha][producto] = 0;
+
+        resumen[fecha][producto] += cantidad;
+      });
+
+      // Mostrar tabla resumen
+      const tablaResumen = document.getElementById('tablaResumen');
+      tablaResumen.innerHTML = '';
+
+      for (const fecha in resumen) {
+        for (const producto in resumen[fecha]) {
+          const fila = document.createElement('tr');
+          fila.innerHTML = `
+            <td>${fecha}</td>
+            <td>${producto}</td>
+            <td>${resumen[fecha][producto]}</td>
+          `;
+          tablaResumen.appendChild(fila);
+        }
+      }
+    }
+
     // Descargar historial en PDF
     document.getElementById('btnPDF').addEventListener('click', () => {
       const contenido = document.getElementById('contenidoHistorial');
@@ -72,47 +126,22 @@
       html2pdf().set(opciones).from(contenido).save();
     });
 
-    // Ejecutar
-    mostrarHistorial();
-  </script>
-
-  <script src="src/assets/js/log.js"></script>
-<script>
-  // Mostrar historial
-  function mostrarHistorial() {
-    const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
-    const listaHistorial = document.getElementById('listaHistorial');
-    const totalRecaudado = document.getElementById('totalRecaudado');
-    let total = 0;
-
-    listaHistorial.innerHTML = '';
-
-    historial.forEach((pedido, index) => {
-      const li = document.createElement('li');
-      li.className = 'list-group-item';
-      li.textContent = `#${index + 1} | Mesa ${pedido.mesa} | ${pedido.producto} x${pedido.cantidad} = $${pedido.total.toFixed(2)} | ${pedido.fecha}`;
-      listaHistorial.appendChild(li);
-      total += pedido.total;
+    // Descargar resumen en PDF
+    document.getElementById('descargarResumen').addEventListener('click', () => {
+      const contenidoResumen = document.getElementById('resumenVentas');
+      const opciones = {
+        margin:       0.5,
+        filename:     'resumen_ventas_por_dia.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opciones).from(contenidoResumen).save();
     });
 
-    totalRecaudado.textContent = total.toFixed(2);
-  }
-
-  // Descargar historial en PDF
-  document.getElementById('btnPDF').addEventListener('click', () => {
-    const contenido = document.getElementById('contenidoHistorial');
-    const opciones = {
-      margin:       0.5,
-      filename:     'historial_pedidos.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    html2pdf().set(opciones).from(contenido).save();
-  });
-
-  // Ejecutar
-  mostrarHistorial();
-</script>
+    // Ejecutar funciones
+    mostrarHistorial();
+    generarResumenPorDia();
+  </script>
 </body>
 </html>
