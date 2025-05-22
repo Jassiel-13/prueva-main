@@ -3,43 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin - Inventario</title>
+  <title>Admin - Panel Completo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <link rel="stylesheet" href="src/css/admin.css" />
+  <script src="src/assets/js/log.js"></script>
 </head>
 <body class="container py-4">
 
-  <h2>Gestión de Inventario</h2>
-  <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Cerrar sesión</button>
+  <h2>Panel de Administración</h2>
+  <button class="btn btn-danger float-end" onclick="cerrarSesion()">Cerrar sesión</button>
 
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Producto</th>
-        <th>Stock</th>
-        <th>Min Stock</th>
-        <th>Acción</th>
-      </tr>
-    </thead>
-    <tbody id="inventarioAdmin">
-      <!-- Aquí se inyectarán los productos -->
-    </tbody>
-  </table>
+  <!-- Inventario -->
+  <section class="mt-4">
+    <h3>📦 Inventario</h3>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Stock</th>
+          <th>Min Stock</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="inventarioAdmin"></tbody>
+    </table>
+  </section>
 
-  <!-- Historial de pedidos -->
-  <div id="historialSection">
-    <h3 class="text-center mb-4">Historial de Pedidos</h3>
+  <!-- Reporte Ventas -->
+  <section class="mt-5">
+    <h3>📊 Historial de Pedidos</h3>
     <div id="contenidoHistorial">
       <ul id="listaHistorial" class="list-group mb-3"></ul>
       <p><strong>Total Recolectado:</strong> $<span id="totalRecaudado">0.00</span></p>
     </div>
     <button id="btnPDF" class="btn btn-danger">Descargar PDF</button>
-  </div>
+  </section>
+
+  <!-- Pedidos Completados -->
+  <section class="mt-5">
+    <h3>📋 Pedidos Completados</h3>
+    <div id="pedidosCompletados"></div>
+  </section>
+
+  <!-- Usuarios -->
+  <section class="mt-5">
+    <h3>👤 Administración de Usuarios</h3>
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <input type="text" class="form-control" id="nuevoUsuario" placeholder="Usuario">
+      <input type="password" class="form-control" id="nuevaContrasena" placeholder="Contraseña">
+      <select class="form-select" id="rolUsuario">
+        <option value="mesero">Mesero</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button class="btn btn-primary" onclick="agregarUsuario()">Agregar</button>
+    </div>
+    <ul id="listaUsuarios" class="list-group"></ul>
+  </section>
 
   <script>
-    // Mostrar historial
+    document.addEventListener("DOMContentLoaded", () => {
+      renderInventarioAdmin();
+      mostrarHistorial();
+      renderPedidosCompletados();
+      renderUsuarios();
+    });
+
+    // Historial
     function mostrarHistorial() {
       const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
       const listaHistorial = document.getElementById('listaHistorial');
@@ -47,7 +77,6 @@
       let total = 0;
 
       listaHistorial.innerHTML = '';
-
       historial.forEach((pedido, index) => {
         const li = document.createElement('li');
         li.className = 'list-group-item';
@@ -55,64 +84,83 @@
         listaHistorial.appendChild(li);
         total += pedido.total;
       });
-
       totalRecaudado.textContent = total.toFixed(2);
     }
 
-    // Descargar historial en PDF
+    // PDF
     document.getElementById('btnPDF').addEventListener('click', () => {
       const contenido = document.getElementById('contenidoHistorial');
-      const opciones = {
-        margin:       0.5,
-        filename:     'historial_pedidos.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      html2pdf().set(opciones).from(contenido).save();
+      html2pdf().set({
+        margin: 0.5,
+        filename: 'historial_pedidos.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      }).from(contenido).save();
     });
 
-    // Ejecutar
-    mostrarHistorial();
+    // Pedidos Completados
+    function renderPedidosCompletados() {
+      const cont = document.getElementById("pedidosCompletados");
+      const completados = JSON.parse(localStorage.getItem("kitchenCompleted")) || [];
+      if (!cont) return;
+      if (!completados.length) {
+        cont.innerHTML = "<p>No hay pedidos completados.</p>";
+        return;
+      }
+      cont.innerHTML = completados.map((p, i) => `
+        <div class="card mb-2">
+          <div class="card-header">
+            #${i + 1} - Mesa ${p.mesa} - ${p.usuario} - ${new Date(p.timestamp).toLocaleString()}
+          </div>
+          <ul class="list-group list-group-flush">
+            ${p.items.map(item => `<li class="list-group-item">${item.nombre}</li>`).join("")}
+          </ul>
+        </div>
+      `).join("");
+    }
+
+    // Usuarios
+    function getUsuarios() {
+      return JSON.parse(localStorage.getItem("usuarios")) || [];
+    }
+    function setUsuarios(usuarios) {
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    }
+    function agregarUsuario() {
+      const nombre = document.getElementById("nuevoUsuario").value.trim();
+      const contrasena = document.getElementById("nuevaContrasena").value.trim();
+      const rol = document.getElementById("rolUsuario").value;
+
+      if (!nombre || !contrasena) return alert("Completa todos los campos.");
+      const usuarios = getUsuarios();
+      if (usuarios.find(u => u.usuario === nombre)) return alert("Ese usuario ya existe.");
+
+      usuarios.push({ usuario: nombre, contrasena, rol });
+      setUsuarios(usuarios);
+      renderUsuarios();
+    }
+    function eliminarUsuario(index) {
+      const usuarios = getUsuarios();
+      usuarios.splice(index, 1);
+      setUsuarios(usuarios);
+      renderUsuarios();
+    }
+    function renderUsuarios() {
+      const lista = document.getElementById("listaUsuarios");
+      const usuarios = getUsuarios();
+      lista.innerHTML = usuarios.map((u, i) => `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          ${u.usuario} <span class="badge bg-secondary">${u.rol}</span>
+          <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${i})">Eliminar</button>
+        </li>
+      `).join("");
+    }
+
+    function cerrarSesion() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
   </script>
-
-  <script src="src/assets/js/log.js"></script>
-<script>
-  // Mostrar historial
-  function mostrarHistorial() {
-    const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
-    const listaHistorial = document.getElementById('listaHistorial');
-    const totalRecaudado = document.getElementById('totalRecaudado');
-    let total = 0;
-
-    listaHistorial.innerHTML = '';
-
-    historial.forEach((pedido, index) => {
-      const li = document.createElement('li');
-      li.className = 'list-group-item';
-      li.textContent = `#${index + 1} | Mesa ${pedido.mesa} | ${pedido.producto} x${pedido.cantidad} = $${pedido.total.toFixed(2)} | ${pedido.fecha}`;
-      listaHistorial.appendChild(li);
-      total += pedido.total;
-    });
-
-    totalRecaudado.textContent = total.toFixed(2);
-  }
-
-  // Descargar historial en PDF
-  document.getElementById('btnPDF').addEventListener('click', () => {
-    const contenido = document.getElementById('contenidoHistorial');
-    const opciones = {
-      margin:       0.5,
-      filename:     'historial_pedidos.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
-    html2pdf().set(opciones).from(contenido).save();
-  });
-
-  // Ejecutar
-  mostrarHistorial();
-</script>
 </body>
 </html>
