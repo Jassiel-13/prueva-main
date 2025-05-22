@@ -223,14 +223,22 @@ function completarPedido(i) {
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────────────
+// ================= ADMIN =====================
+
+// Inventario: mostrar y editar
 function renderInventarioAdmin() {
-  const tbody = document.getElementById("inventarioAdmin"); if (!tbody) return; tbody.innerHTML = "";
+  const tbody = document.getElementById("inventarioAdmin");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
   productos.forEach(p => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${p.nombre}</td>
+    tr.innerHTML = `
+      <td>${p.nombre}</td>
       <td><input type="number" id="stk-${p.id}" value="${p.stock}" class="form-control form-control-sm"/></td>
       <td><input type="number" id="min-${p.id}" value="${p.minStock}" class="form-control form-control-sm"/></td>
-      <td><button class="btn btn-sm btn-primary" onclick="updateStock(${p.id})">Guardar</button></td>`;
+      <td><button class="btn btn-sm btn-primary" onclick="updateStock(${p.id})">Guardar</button></td>
+    `;
     if (p.stock <= p.minStock) tr.classList.add("table-warning");
     tbody.appendChild(tr);
   });
@@ -243,7 +251,44 @@ function updateStock(id) {
   renderInventarioAdmin();
 }
 
-// ── REPORTES ──────────────────────────────────────────────────────────
+// Historial de pedidos (simple por nombre y fecha)
+function getHistorial() {
+  return JSON.parse(localStorage.getItem('historialPedidos')) || [];
+}
+
+function renderHistorialPedidos() {
+  const historial = getHistorial();
+  const lista = document.getElementById("listaHistorial");
+  const totalSpan = document.getElementById("totalRecaudado");
+
+  let total = 0;
+  lista.innerHTML = "";
+
+  historial.forEach((pedido, i) => {
+    const li = document.createElement("li");
+    li.className = "list-group-item";
+    li.textContent = `#${i + 1} | ${pedido.fecha} | ${pedido.nombre}`;
+    lista.appendChild(li);
+    total += 100; // Precio fijo si no se guarda monto
+  });
+
+  totalSpan.textContent = total.toFixed(2);
+}
+
+// Descargar PDF del historial
+function descargarHistorialPDF() {
+  const contenido = document.getElementById("contenidoHistorial");
+  const opciones = {
+    margin: 0.5,
+    filename: 'historial_pedidos.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(opciones).from(contenido).save();
+}
+
+// Ventas por día (usando kitchenCompleted)
 function renderReportes() {
   const cont = document.getElementById("reportes");
   if (!cont) return;
@@ -254,53 +299,40 @@ function renderReportes() {
     return;
   }
 
-  // Agrupar ventas por día y por producto
-  const ventasPorDia = {};
-
-  comp.forEach(pedido => {
-    const dia = new Date(pedido.timestamp).toLocaleDateString();
-
-    if (!ventasPorDia[dia]) ventasPorDia[dia] = {};
-
-    pedido.items.forEach(item => {
-      if (!ventasPorDia[dia][item.nombre]) ventasPorDia[dia][item.nombre] = 0;
-      ventasPorDia[dia][item.nombre]++;
+  const porDia = comp.reduce((a, p) => {
+    const d = new Date(p.timestamp).toLocaleDateString();
+    a[d] = a[d] || {};
+    p.items.forEach(i => {
+      a[d][i.nombre] = (a[d][i.nombre] || 0) + 1;
     });
-  });
+    return a;
+  }, {});
 
-  // Construir el HTML con tablas por día
-  cont.innerHTML = "";
-
-  Object.entries(ventasPorDia).forEach(([dia, productos]) => {
-    const card = document.createElement("div");
-    card.className = "card mb-3";
-
-    const cardHeader = document.createElement("div");
-    cardHeader.className = "card-header";
-    cardHeader.textContent = `Ventas del día ${dia}`;
-
-    const table = document.createElement("table");
-    table.className = "table table-striped";
-
-    const thead = document.createElement("thead");
-    thead.innerHTML = `<tr><th>Producto</th><th>Cantidad vendida</th></tr>`;
-
-    const tbody = document.createElement("tbody");
-
-    Object.entries(productos).forEach(([producto, cantidad]) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${producto}</td><td>${cantidad}</td>`;
-      tbody.appendChild(tr);
-    });
-
-    table.appendChild(thead);
-    table.appendChild(tbody);
-
-    card.appendChild(cardHeader);
-    card.appendChild(table);
-    cont.appendChild(card);
-  });
+  cont.innerHTML = Object.entries(porDia).map(([fecha, items]) => `
+    <div class="card mb-3">
+      <div class="card-header">${fecha}</div>
+      <table class="table">
+        <thead><tr><th>Producto</th><th>Cantidad</th></tr></thead>
+        <tbody>
+          ${Object.entries(items).map(([prod, cant]) => `
+            <tr><td>${prod}</td><td>${cant}</td></tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `).join('');
 }
+
+// Inicializar admin
+window.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("inventarioAdmin")) renderInventarioAdmin();
+  if (document.getElementById("listaHistorial")) renderHistorialPedidos();
+  if (document.getElementById("reportes")) renderReportes();
+
+  const btnPDF = document.getElementById("btnPDF");
+  if (btnPDF) btnPDF.addEventListener("click", descargarHistorialPDF);
+});
+
 
 // ── Inicialización ────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
@@ -444,166 +476,6 @@ async function iniciarSesion() {
         }
     }
 
-//------GENERAR REPORTE-------------------------------------------------
-function generarReporteVentas() {
-  const historial = getHistorial();
-  if (!historial.length) return alert("No hay historial de ventas.");
 
-  const conteo = {};
-
-  historial.forEach(item => {
-    const clave = `${item.fecha} - ${item.nombre}`;
-    conteo[clave] = (conteo[clave] || 0) + 1;
-  });
-
-  // Crear tabla
-  let html = `
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Fecha</th>
-          <th>Producto</th>
-          <th>Cantidad Vendida</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  for (const clave in conteo) {
-    const [fecha, nombre] = clave.split(" - ");
-    html += `
-      <tr>
-        <td>${fecha}</td>
-        <td>${nombre}</td>
-        <td>${conteo[clave]}</td>
-      </tr>
-    `;
-  }
-
-  html += `</tbody></table>`;
-
-  const cont = document.getElementById("reporteVentas");
-  cont.innerHTML = html;
-
-  // Opción para descargar como archivo de texto o Excel
-  const btn = document.createElement("button");
-  btn.textContent = "Descargar reporte";
-  btn.className = "btn btn-primary my-2";
-  btn.onclick = () => descargarReporteComoCSV(conteo);
-  cont.appendChild(btn);
-}
-
-function descargarReporteComoCSV(data) {
-  let csv = "Fecha,Producto,Cantidad\n";
-  for (const clave in data) {
-    const [fecha, producto] = clave.split(" - ");
-    csv += `${fecha},${producto},${data[clave]}\n`;
-  }
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "reporte_ventas.csv";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
-function generarResumenPorDia() {
-  const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
-  const resumen = {}; // {fecha: {producto: cantidad}}
-
-  historial.forEach(pedido => {
-    const fecha = pedido.fecha;
-    const producto = pedido.producto;
-    const cantidad = pedido.cantidad;
-
-    if (!resumen[fecha]) resumen[fecha] = {};
-    if (!resumen[fecha][producto]) resumen[fecha][producto] = 0;
-
-    resumen[fecha][producto] += cantidad;
-  });
-
-  // Mostrar tabla resumen
-  const tablaResumen = document.getElementById('tablaResumen');
-  tablaResumen.innerHTML = '';
-
-  const fechasOrdenadas = Object.keys(resumen).sort();
-  fechasOrdenadas.forEach(fecha => {
-    for (const producto in resumen[fecha]) {
-      const fila = document.createElement('tr');
-      fila.innerHTML = `
-        <td>${fecha}</td>
-        <td>${producto}</td>
-        <td>${resumen[fecha][producto]}</td>
-      `;
-      tablaResumen.appendChild(fila);
-    }
-  });
-
-  // Generar gráfica
-  graficarResumen(resumen);
-}
-function graficarResumen(resumen) {
-  const datosPorFecha = {};
-
-  for (const fecha in resumen) {
-    let totalPorFecha = 0;
-    for (const producto in resumen[fecha]) {
-      totalPorFecha += resumen[fecha][producto];
-    }
-    datosPorFecha[fecha] = totalPorFecha;
-  }
-
-  const fechas = Object.keys(datosPorFecha).sort();
-  const cantidades = fechas.map(f => datosPorFecha[f]);
-
-  const ctx = document.getElementById('graficaResumen').getContext('2d');
-
-  // Destruir gráfica anterior si ya existe
-  if (window.grafica) window.grafica.destroy();
-
-  window.grafica = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: fechas,
-      datasets: [{
-        label: 'Productos vendidos por día',
-        data: cantidades,
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { precision: 0 }
-        }
-      }
-    }
-  });
-}
-function descargarResumenCSV() {
-  const tabla = document.getElementById("tablaResumen");
-  const filas = tabla.querySelectorAll("tr");
-  let csv = "Fecha,Producto,Cantidad\n";
-
-  filas.forEach(fila => {
-    const celdas = fila.querySelectorAll("td");
-    if (celdas.length > 0) {
-      csv += `${celdas[0].innerText},${celdas[1].innerText},${celdas[2].innerText}\n`;
-    }
-  });
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const enlace = document.createElement("a");
-  enlace.href = url;
-  enlace.download = "resumen_ventas.csv";
-  enlace.click();
-}
 
 
