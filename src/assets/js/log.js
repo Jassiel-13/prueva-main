@@ -170,10 +170,31 @@ function vaciarPedido() {
 function enviarACocina() {
   const pd = getPedido();
   if (!pd.length) return alert("No hay nada.");
+
+  const mesa = localStorage.getItem("mesa");
+  const usuario = localStorage.getItem("usuario");
+  const timestamp = Date.now();
+
+  // Guardar en cocina
   const k = getKitchen();
-  k.push({ mesa: localStorage.getItem("mesa"), usuario: localStorage.getItem("usuario"), items: pd, timestamp: Date.now() });
-  setKitchen(k); setPedido([]); renderPedidoMesero(); actualizarContador(); alert("Enviado a cocina");
+  k.push({ mesa, usuario, items: pd, timestamp });
+  setKitchen(k);
+
+  // Guardar en historial
+  const historial = getHistorial();
+  historial.push(...pd.map(p => ({
+    id: p.id,
+    nombre: p.nombre,
+    fecha: new Date().toISOString().split("T")[0] // YYYY-MM-DD
+  })));
+  setHistorial(historial);
+
+  setPedido([]);
+  renderPedidoMesero();
+  actualizarContador();
+  alert("Enviado a cocina");
 }
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // ── COCINA ────────────────────────────────────────────────────────────
 function renderPedidosCocina() {
@@ -422,3 +443,69 @@ async function iniciarSesion() {
             mensajeError.textContent = 'Error de conexión con el servidor';
         }
     }
+
+//------GENERAR REPORTE-------------------------------------------------
+function generarReporteVentas() {
+  const historial = getHistorial();
+  if (!historial.length) return alert("No hay historial de ventas.");
+
+  const conteo = {};
+
+  historial.forEach(item => {
+    const clave = `${item.fecha} - ${item.nombre}`;
+    conteo[clave] = (conteo[clave] || 0) + 1;
+  });
+
+  // Crear tabla
+  let html = `
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Producto</th>
+          <th>Cantidad Vendida</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  for (const clave in conteo) {
+    const [fecha, nombre] = clave.split(" - ");
+    html += `
+      <tr>
+        <td>${fecha}</td>
+        <td>${nombre}</td>
+        <td>${conteo[clave]}</td>
+      </tr>
+    `;
+  }
+
+  html += `</tbody></table>`;
+
+  const cont = document.getElementById("reporteVentas");
+  cont.innerHTML = html;
+
+  // Opción para descargar como archivo de texto o Excel
+  const btn = document.createElement("button");
+  btn.textContent = "Descargar reporte";
+  btn.className = "btn btn-primary my-2";
+  btn.onclick = () => descargarReporteComoCSV(conteo);
+  cont.appendChild(btn);
+}
+
+function descargarReporteComoCSV(data) {
+  let csv = "Fecha,Producto,Cantidad\n";
+  for (const clave in data) {
+    const [fecha, producto] = clave.split(" - ");
+    csv += `${fecha},${producto},${data[clave]}\n`;
+  }
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "reporte_ventas.csv";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
