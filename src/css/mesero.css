@@ -1,0 +1,147 @@
+body {
+      background-color: #f6aa4e;
+      font-family: 'Kavoon', cursive;
+      padding: 20px;
+      margin: 0;
+    }
+
+ 
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #fff7e6;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+    }
+
+    h3 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 25px;
+      color: #4e2e1f;
+    }
+
+    #pedidoMesero {
+      background: #fff0c9;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background-color: #fcd385;
+      color: #4e2e1f;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    tr:hover {
+      background-color: #f9e8b0;
+    }
+
+    .botones {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .botones button {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      color: white;
+    }
+
+    .vaciar {
+      background-color: #e74c3c;
+    }
+
+    .vaciar:hover {
+      background-color: #c0392b;
+    }
+
+    .enviar {
+      background-color: #27ae60;
+    }
+
+    .enviar:hover {
+      background-color: #1e8449;
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-sm:hover {
+      background-color: #c0392b;
+    }
+
+    p {
+      text-align: center;
+      font-size: 18px;
+      color: #555;
+    }
+
+
+
+
+/* Posicionamiento del botón en la esquina superior derecha */
+.btn-cerrar-sesion {
+  background-color: #FF7A7A; /* Rojo suave */
+  color: #FFFFFF;
+  font-weight: bold;
+  font-family: 'Kavoon', cursive;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 1rem;
+  
+  /* Posicionamiento en la esquina superior derecha */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10; /* Asegura que el botón esté encima de otros elementos */
+}
+
+/* Efecto hover para el botón */
+.btn-cerrar-sesion:hover {
+  background-color: #e96565; /* Rojo más oscuro */
+  transform: scale(1.05); /* Le da un efecto de agrandarse */
+}
+
+/* Efecto focus para el botón */
+.btn-cerrar-sesion:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 122, 122, 0.7); /* Resaltado cuando se selecciona */
+}
+
+/* Efecto active cuando el botón es presionado */
+.btn-cerrar-sesion:active {
+  background-color: #d75656; /* Rojo más oscuro */
+  transform: scale(0.98); /* Le da un efecto de "presionar" */
+}

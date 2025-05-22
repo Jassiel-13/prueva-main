@@ -1,0 +1,140 @@
+/* Importar fuente Kavoon */
+@import url('https://fonts.googleapis.com/css2?family=Kavoon&display=swap');
+
+/* Estilo general */
+body {
+  font-family: 'Kavoon', cursive;
+  background-color: #FFC986;
+  color: #FFFFFF;
+  padding-top: 20px;
+}
+
+/* Título con imagen */
+.titulo img {
+  border-radius: 10px;
+}
+
+h1 {
+  font-family: 'Kavoon', cursive;
+  font-size: 3rem;
+  color: #0B0B0B;
+}
+
+/* Contenedor del formulario */
+form {
+  background-color: #FBE3AD;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #0B0B0B;
+}
+
+/* Etiquetas del formulario */
+.form-label {
+  font-weight: bold;
+  color: #0B0B0B;
+}
+
+/* Inputs y select */
+.form-control,
+.form-select {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+  transition: all 0.3s ease;
+  color: #0B0B0B;
+  font-family: 'Kavoon', cursive;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #FF7A7A;
+  box-shadow: 0 0 5px rgba(255, 122, 122, 0.5);
+}
+
+/* Botón */
+.btn-primary {
+  background-color: #FF7A7A;
+  border: none;
+  color: #FFFFFF;
+  font-weight: bold;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  font-family: 'Kavoon', cursive;
+}
+
+.btn-primary:hover {
+  background-color: #e96565;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  form {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+/* ---------------------------------------------------------------------MENU */
+
+/* Estilo general del modal */
+.modal-content {
+  border-radius: 1.5rem;
+  background-color: #fff8f0; /* tono vintage suave */
+  border: 2px solid #d4a373; /* borde clásico */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  font-family: 'Georgia', serif;
+}
+
+/* Título del modal */
+.modal-title {
+  font-weight: bold;
+  color: #6b4c3b;
+  font-size: 1.4rem;
+}
+
+/* Botón cerrar del modal */
+.modal-header .btn-close {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(10%) saturate(300%) hue-rotate(10deg);
+}
+
+/* Lista de pedido */
+#detalleOrden li {
+  background-color: #fff4e6;
+  border: none;
+  border-bottom: 1px dashed #d4a373;
+  padding: 0.75rem 1rem;
+  color: #5a3e2b;
+}
+
+/* Mensaje vacío */
+#mensajeVacio {
+  font-style: italic;
+  color: #a58c74;
+}
+
+/* Footer del modal */
+.modal-footer {
+  border-top: none;
+}
+
+/* Botones del modal */
+.modal-footer .btn {
+  border-radius: 1rem;
+  padding: 0.5rem 1.5rem;
+  font-weight: bold;
+}
+
+.modal-footer .btn-outline-secondary {
+  background-color: #fff4e6;
+  color: #5a3e2b;
+  border: 1px solid #d4a373;
+}
+
+.modal-footer .btn-success {
+  background-color: #d4a373;
+  border-color: #b98b58;
+  color: white;
+}

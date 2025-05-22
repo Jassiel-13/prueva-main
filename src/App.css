@@ -1,0 +1,279 @@
+/* Importar fuente Kavoon */
+@import url('https://fonts.googleapis.com/css2?family=Kavoon&display=swap');
+
+/* Estilo general 
+body {
+  font-family: 'Kavoon', cursive;
+  background-color: #FFC986;
+  color: #FFFFFF;
+  padding-top: 20px;
+}*/
+body {
+  font-family: 'Kavoon', cursive;
+  background: radial-gradient(circle, #FBE3AD 20%, #FFC986 20%) repeat;
+  background-size: 100px 100px; /* Tamaño de los círculos */
+  height: 30 vh;
+  margin: 0;
+}
+.card-img-top {
+  width: 100%;
+  height: 250px; /* o 300px si quieres más altura */
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 10px; /* opcional para suavizar bordes */
+}
+
+
+/* Título con imagen */
+.titulo img {
+  border-radius: 10px;
+}
+  .titulo {
+    gap: 1rem;
+  }
+
+  .logo-soda {
+    height: 120px;
+    object-fit: contain;
+    border-radius: 10px;
+
+  }
+
+  .titulo h1 {
+    font-size: 36px;
+    font-weight: bold;
+  }
+
+h1 {
+  font-family: 'Kavoon', cursive;
+  font-size: 36px;
+  color: #0B0B0B;
+}
+
+/* Contenedor del formulario */
+form {
+  background-color: #FBE3AD;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #0B0B0B;
+}
+
+/* Etiquetas del formulario */
+.form-label {
+  font-weight: bold;
+  color: #0B0B0B;
+  font-size: 30px;
+}
+
+/* Inputs y select */
+.form-control,
+.form-select {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+  transition: all 0.3s ease;
+  color: #0B0B0B;
+  font-family: 'Kavoon', cursive;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #FF7A7A;
+  box-shadow: 0 0 5px rgba(255, 122, 122, 0.5);
+}
+
+/* Botón */
+.btn-primary {
+  background-color: #FF7A7A;
+  border: none;
+  color: #FFFFFF;
+  font-weight: bold;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  font-family: 'Kavoon', cursive;
+}
+
+.btn-primary:hover {
+  background-color: #e96565;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  form {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+    .modal-dialog {
+    max-width: 90%; /* El modal ocupará el 90% en pantallas más pequeñas */
+  }
+}
+
+/* ---------------------------------------------------------------------MENU */
+
+/* Estilo general del modal */
+/* Modal */
+.modal-content {
+  background-color: #FBE3AD; /* Fondo del modal */
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  font-family: 'Kavoon', cursive; /* Fuente Kavoon */
+  color: #FFFFFF; /* Texto blanco */
+}
+
+/* Título del modal */
+.modal-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #FF7A7A; /* Color del título */
+  text-align: center; /* Centrado del título */
+}
+
+/* Cuerpo del modal */
+.modal-body {
+  font-size: 1.2rem;
+  color: #0B0B0B; /* Color del texto */
+  text-align: center; /* Centrado del contenido */
+}
+
+/* Botón de cierre */
+.modal-header .btn-close {
+  filter: brightness(0) saturate(100%) invert(30%) sepia(10%) saturate(300%) hue-rotate(10deg);
+}
+
+/* Lista de pedido */
+#detalleOrden li {
+  background-color: #fff4e6;
+  border: none;
+  border-bottom: 1px dashed #d4a373;
+  padding: 0.75rem 1rem;
+  color: #5a3e2b;
+}
+
+/* Mensaje vacío */
+#mensajeVacio {
+  font-style: italic;
+  color: #a58c74;
+}
+
+/* Footer del modal */
+.modal-footer {
+  border-top: none;
+}
+
+/* Botones del modal */
+.modal-footer .btn {
+  border-radius: 1rem;
+  padding: 0.5rem 1.5rem;
+  font-weight: bold;
+}
+
+.modal-footer .btn-outline-secondary {
+  background-color: #fff4e6;
+  color: #5a3e2b;
+  border: 1px solid #d4a373;
+}
+
+.modal-footer .btn-success {
+  background-color: #d4a373;
+  border-color: #b98b58;
+  color: white;
+}
+
+
+   .card {
+      height: 60vh;
+      max-width: 400px;
+    }
+
+    .card-body {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* centra verticalmente */
+    }
+
+    form {
+      flex-grow: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* centra contenido del formulario */
+    }
+
+    .d-grid {
+      margin-top: auto; /* Asegura que el botón quede al final */
+    }
+
+        .form-control,
+    .form-select {
+      font-size: 1.1rem;
+      padding: 0.75rem;
+    }
+
+    .btn {
+      font-size: 1.2rem;
+      padding: 0.75rem;
+    }
+
+
+    /* Estilo personalizado para la navbar */
+.custom-navbar {
+  background-color: #FF7A7A;
+  color: white;
+  border-radius: 15px;
+  position: relative;
+}
+
+/* Título centrado */
+.navbar-title {
+  font-size: 2rem;
+  color: white;
+  font-family: 'Kavoon', cursive;
+  text-align: center;
+  flex: 1;
+  margin: 0 auto;
+  white-space: nowrap; /* evita que se corte en dos líneas */
+}
+
+/* Asegura que el saludo y botón se alineen al lado derecho */
+#saludoUsuario {
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.navbar .btn {
+  background-color: white;
+  color: #FF7A7A;
+  border-radius: 80%;
+  width: 50px;
+  height: 50px;
+  font-size: 1.3rem; /* Aumenta el tamaño del texto */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+}
+
+
+.navbar .btn:hover {
+  background-color: #f1f1f1;
+}
+
+
+/* Botones pequeños y del mismo tamaño */
+/* Ajuste para botones más pequeños */
+.btn-sm {
+  font-size: 0.85rem; /* Tamaño de letra más pequeño */
+  padding: 0.25rem 0.5rem; /* Menor padding para reducir el tamaño */
+  min-width: 100px; /* Reducir el ancho mínimo */
+  text-align: center; /* Alineación del texto en el centro */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}

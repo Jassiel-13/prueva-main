@@ -1,0 +1,79 @@
+body {
+      background-color: #f7f7f7; /* Fondo más suave */
+      font-family: 'Poppins', sans-serif; /* Fuente moderna */
+      color: #333; /* Texto oscuro para un buen contraste */
+      line-height: 1.6;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #2a3d47; /* Color suave pero profesional */
+      margin-bottom: 40px;
+      letter-spacing: 2px;
+    }
+
+    .container {
+      padding-top: 40px;
+      max-width: 1200px;
+    }
+
+    #reportes {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    .table {
+      margin-top: 20px;
+      background-color: #fff;
+      border-radius: 10px; /* Bordes redondeados */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .table thead {
+      background-color: #fbe3ad;
+      font-weight: 600;
+      color: #4f4f4f;
+    }
+
+    .table th, .table td {
+      padding: 12px;
+      text-align: center;
+    }
+
+    .table th {
+      font-size: 1.1rem;
+    }
+
+    .table td {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .table td, .table th {
+      border: none;
+    }
+
+    .table tbody tr:nth-child(odd) {
+      background-color: #f9f9f9; /* Fila alterna para mejor legibilidad */
+    }
+
+    .table td button {
+      padding: 8px 16px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      border: none;
+      background-color: #5cb85c;
+      color: white;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .table td button:hover {
+      background-color: #449d44;
+      transform: scale(1.05); /* Efecto de agrandado al pasar el ratón */
+    }

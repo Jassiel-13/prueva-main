@@ -1,0 +1,33 @@
+// server.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const app = express();
+const PORT = 3000;
+
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// Simulación de usuarios
+const usuarios = [
+    { usuario: 'mesero', contrasena: '1234', rol: 'mesero' },
+    { usuario: 'admin', contrasena: 'admin123', rol: 'admin' }
+];
+
+// Ruta de login
+app.post('/login', (req, res) => {
+    const { usuario, contrasena } = req.body;
+
+    const user = usuarios.find(u => u.usuario === usuario && u.contrasena === contrasena);
+    
+    if (user) {
+        res.json({ success: true, rol: user.rol });
+    } else {
+        res.status(401).json({ success: false, mensaje: 'Usuario o contraseña incorrectos' });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});

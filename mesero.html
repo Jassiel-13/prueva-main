@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mesero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kavoon&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/css/mesero.css" />
+</head>
+<body>
+  <div class="container">
+    <h3>Pedido Actual</h3>
+<button class="btn-cerrar-sesion" onclick="cerrarSesion()">Cerrar sesión</button>
+    <div id="pedidoMesero">
+      <!-- Aquí se mostrará el pedido dinámicamente -->
+      <p>No hay productos.</p> <!-- Mensaje por defecto si no hay pedido -->
+    </div>
+
+    <div class="botones">
+      <button class="vaciar" onclick="vaciarPedido()">Vaciar Pedido</button>
+      <button class="enviar" onclick="enviarACocina()">Enviar a Cocina</button>
+    </div>
+  </div>
+
+  <script src="src/assets/js/log.js"></script></body>
+
+
+</body>
+
+</html>
