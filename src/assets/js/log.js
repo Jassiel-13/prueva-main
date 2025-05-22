@@ -323,6 +323,27 @@ function enviarOrden() {
 
 //------------log
 function iniciarSesion() {
+    const usuario = document.getElementById("usuario").value.trim();
+    const contrasena = document.getElementById("contrasena").value.trim();
+    const mensajeError = document.getElementById("mensajeError");
+
+    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    const usuarioEncontrado = usuarios.find(u =>
+        u.usuario === usuario && u.contrasena === 1234
+    );
+
+    if (usuarioEncontrado) {
+        localStorage.setItem("usuario", usuario);
+        mensajeError.textContent = "";
+        window.location.href = "menu.html"; // Cambia a tu página principal
+    } else {
+        mensajeError.textContent = "Usuario o contraseña incorrectos.";
+    }
+}
+
+
+function iniciarSesion() {
   const usuario = document.getElementById('usuario').value;
   const contrasena = document.getElementById('contrasena').value;
   const mensajeError = document.getElementById('mensajeError');
