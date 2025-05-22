@@ -1,44 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin - Inventario</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <link rel="stylesheet" href="src/css/admin.css" />
+  <meta charset="UTF-8">
+  <title>Administrador - Resumen de Ventas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="container py-4">
-
-  <h2>Gestión de Inventario</h2>
-  <button class="btn btn-danger mb-3" onclick="cerrarSesion()">Cerrar sesión</button>
-
-  <!-- Tabla de Inventario -->
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th>Producto</th>
-        <th>Stock</th>
-        <th>Min Stock</th>
-        <th>Acción</th>
-      </tr>
-    </thead>
-    <tbody id="inventarioAdmin">
-      <!-- Aquí se inyectarán los productos -->
-    </tbody>
-  </table>
-
-  <!-- Historial de pedidos -->
-  <div id="historialSection">
-    <h3 class="text-center mb-4">Historial de Pedidos</h3>
-    <div id="contenidoHistorial">
-      <ul id="listaHistorial" class="list-group mb-3"></ul>
-      <p><strong>Total Recolectado:</strong> $<span id="totalRecaudado">0.00</span></p>
-    </div>
-    <button id="btnPDF" class="btn btn-warning mb-4">Descargar Historial en PDF</button>
-
-    <hr />
+<body class="bg-light">
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Panel de Administración</h1>
 
     <!-- Resumen por día -->
     <h4 class="mt-4">Resumen de productos vendidos por día</h4>
@@ -53,125 +26,17 @@
         </thead>
         <tbody id="tablaResumen"></tbody>
       </table>
-      <button class="btn btn-success mb-4" id="descargarResumen">Descargar Resumen en PDF</button>
+
+      <button class="btn btn-success mb-2" id="descargarResumen">Descargar Resumen en PDF</button>
+      <button class="btn btn-outline-primary mb-2" onclick="descargarResumenCSV()">Descargar en CSV</button>
+
+      <!-- Gráfica de resumen -->
+      <canvas id="graficaResumen" width="400" height="200" class="mt-4 mb-4"></canvas>
     </div>
   </div>
 
-  <!-- Test contenido simple para PDF -->
-  <div id="testPdfContent" style="display:none; margin-top:2rem;">
-    <h1>Prueba PDF</h1>
-    <p>Este es un contenido de prueba para pdf.</p>
-  </div>
-  <button id="btnTestPdf" class="btn btn-info mb-4">Descargar PDF de prueba simple</button>
-  <button id="btnTestCanvas" class="btn btn-secondary mb-4">Mostrar captura con html2canvas</button>
-
   <!-- Scripts -->
-  <script src="src/assets/js/log.js"></script>
-  <script>
-    // Mostrar historial
-    function mostrarHistorial() {
-      const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
-      const listaHistorial = document.getElementById('listaHistorial');
-      const totalRecaudado = document.getElementById('totalRecaudado');
-      let total = 0;
-
-      listaHistorial.innerHTML = '';
-
-      historial.forEach((pedido, index) => {
-        const li = document.createElement('li');
-        li.className = 'list-group-item';
-        li.textContent = `#${index + 1} | Mesa ${pedido.mesa} | ${pedido.producto} x${pedido.cantidad} = $${pedido.total.toFixed(2)} | ${pedido.fecha}`;
-        listaHistorial.appendChild(li);
-        total += pedido.total;
-      });
-
-      totalRecaudado.textContent = total.toFixed(2);
-    }
-
-    // Generar resumen por día
-    function generarResumenPorDia() {
-      const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
-      const resumen = {}; // {fecha: {producto: cantidad}}
-
-      historial.forEach(pedido => {
-        const fecha = pedido.fecha;
-        const producto = pedido.producto;
-        const cantidad = pedido.cantidad;
-
-        if (!resumen[fecha]) resumen[fecha] = {};
-        if (!resumen[fecha][producto]) resumen[fecha][producto] = 0;
-
-        resumen[fecha][producto] += cantidad;
-      });
-
-      // Mostrar tabla resumen
-      const tablaResumen = document.getElementById('tablaResumen');
-      tablaResumen.innerHTML = '';
-
-      for (const fecha in resumen) {
-        for (const producto in resumen[fecha]) {
-          const fila = document.createElement('tr');
-          fila.innerHTML = `
-            <td>${fecha}</td>
-            <td>${producto}</td>
-            <td>${resumen[fecha][producto]}</td>
-          `;
-          tablaResumen.appendChild(fila);
-        }
-      }
-    }
-
-    // Descargar historial en PDF (con retardo)
-    document.getElementById('btnPDF').addEventListener('click', () => {
-      const contenido = document.getElementById('contenidoHistorial');
-      const opciones = {
-        margin: 0.5,
-        filename: 'historial_pedidos.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      setTimeout(() => {
-        html2pdf().set(opciones).from(contenido).save();
-      }, 500);
-    });
-
-    // Descargar resumen en PDF (con retardo)
-    document.getElementById('descargarResumen').addEventListener('click', () => {
-      const contenidoResumen = document.getElementById('resumenVentas');
-      const opciones = {
-        margin: 0.5,
-        filename: 'resumen_ventas_por_dia.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      setTimeout(() => {
-        html2pdf().set(opciones).from(contenidoResumen).save();
-      }, 500);
-    });
-
-    // Descargar PDF de prueba simple
-    document.getElementById('btnTestPdf').addEventListener('click', () => {
-      const contenido = document.getElementById('testPdfContent');
-      contenido.style.display = 'block';
-      setTimeout(() => {
-        html2pdf().from(contenido).save().then(() => {
-          contenido.style.display = 'none';
-        });
-      }, 300);
-    });
-
-    // Mostrar captura con html2canvas para debug
-    document.getElementById('btnTestCanvas').addEventListener('click', () => {
-      html2canvas(document.getElementById('contenidoHistorial')).then(canvas => {
-        document.body.appendChild(canvas);
-      });
-    });
-
-    // Ejecutar funciones
-    mostrarHistorial();
-    generarResumenPorDia();
-  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="log.js"></script>
 </body>
 </html>
