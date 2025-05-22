@@ -156,7 +156,25 @@ function renderPedidoMesero() {
     `;
   });
 }
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+function eliminarProducto(i) {
+  const pd = getPedido(); pd.splice(i, 1); setPedido(pd); renderPedidoMesero(); actualizarContador();
+}
 
+function vaciarPedido() {
+  if (confirm("Vaciar pedido?")) {
+    setPedido([]); renderPedidoMesero(); actualizarContador();
+  }
+}
+
+function enviarACocina() {
+  const pd = getPedido();
+  if (!pd.length) return alert("No hay nada.");
+  const k = getKitchen();
+  k.push({ mesa: localStorage.getItem("mesa"), usuario: localStorage.getItem("usuario"), items: pd, timestamp: Date.now() });
+  setKitchen(k); setPedido([]); renderPedidoMesero(); actualizarContador(); alert("Enviado a cocina");
+}
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 // ── COCINA ────────────────────────────────────────────────────────────
 function renderPedidosCocina() {
   const cont = document.getElementById("pedidosCocina"); if (!cont) return;
