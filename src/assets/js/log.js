@@ -359,6 +359,74 @@ function completarPedido(index) {
 
 
 // ================= ADMIN =====================
+function renderInventario() {
+  const inventario = JSON.parse(localStorage.getItem("inventario")) || [];
+  const tbody = document.getElementById("inventarioAdmin");
+  tbody.innerHTML = "";
+
+  inventario.forEach((producto, index) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${producto.nombre}</td>
+      <td><input type="number" class="form-control" value="${producto.stock}" onchange="actualizarStock(${index}, this.value)"></td>
+      <td>${producto.minStock}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="eliminarProducto(${index})">Eliminar</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function actualizarStock(index, nuevoStock) {
+  const inventario = JSON.parse(localStorage.getItem("inventario")) || [];
+  inventario[index].stock = parseInt(nuevoStock);
+  localStorage.setItem("inventario", JSON.stringify(inventario));
+  renderInventario();
+}
+
+function eliminarProducto(index) {
+  const inventario = JSON.parse(localStorage.getItem("inventario")) || [];
+  if (confirm("¿Eliminar este producto?")) {
+    inventario.splice(index, 1);
+    localStorage.setItem("inventario", JSON.stringify(inventario));
+    renderInventario();
+  }
+}
+
+function renderHistorialPedidos() {
+  const historial = JSON.parse(localStorage.getItem("historialPedidos")) || [];
+  const lista = document.getElementById("listaHistorial");
+  const total = document.getElementById("totalRecaudado");
+  let suma = 0;
+  lista.innerHTML = "";
+
+  historial.forEach(pedido => {
+    const item = document.createElement("li");
+    item.className = "list-group-item";
+    item.textContent = `${pedido.fecha} - Mesa ${pedido.mesa}: $${pedido.total.toFixed(2)}`;
+    suma += pedido.total;
+    lista.appendChild(item);
+  });
+
+  total.textContent = suma.toFixed(2);
+}
+
+document.getElementById("btnPDF").addEventListener("click", () => {
+  const contenido = document.getElementById("contenidoHistorial");
+  html2pdf().from(contenido).save("reporte_ventas.pdf");
+});
+
+function renderPedidosCompletados() {
+  const pedidos = JSON.parse(localStorage.getItem("pedidosCompletados")) || [];
+  const contenedor = document.getElementById("pedidosCompletados");
+  contenedor.innerHTML = "";
+
+  pedidos.forEach(pedido => {
+    const div = document.createElement("div");
+    div.className = "alert alert-success";
+    div.innerHTML = `<strong>Mesa ${pedido.mesa}</strong> - ${pedido.detalle} - <strong>$${pedido.total.toFixed(2)}</strong>`;
+    contenedor.appendChild(div);
+  });
+}
 
 // Inventario: mostrar y editar
 function renderInventarioAdmin() {
