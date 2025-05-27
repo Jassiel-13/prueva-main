@@ -156,14 +156,33 @@ function renderPedidosCocina() {
   tbl.innerHTML = `<thead><tr><th>Mesa</th><th>Usuario</th><th>Productos</th><th>Acción</th></tr></thead>`;
   const tb = document.createElement("tbody");
   k.forEach((pd, i) => {
+        const productosLista = pd.items.map(it => 
+      `<li>${it.nombre} <small>(${it.ingredientes.join(", ")})</small></li>`
+    ).join("");
+
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${pd.mesa}</td><td>${pd.usuario}</td><td><ul>${pd.items.map(x => `<li>${x.nombre}</li>`).join("")}</ul></td>
-      <td><button class="btn btn-sm btn-success" onclick="completarPedido(${i})">Listo</button></td>`;
+    tr.innerHTML = `
+      <td>${pd.mesa}</td>
+      <td>${pd.usuario}</td>
+      <td><ul>${productosLista}</ul></td>
+      <td>
+        <button class="btn btn-success btn-sm" onclick="marcarComoCompletado(${i})">Completar</button>
+      </td>
+    `;
     tb.appendChild(tr);
   });
-  tbl.appendChild(tb); cont.appendChild(tbl);
-  
+
+  tbl.appendChild(tb);
+  cont.appendChild(tbl);
 }
+
+function marcarComoCompletado(index) {
+  const k = getKitchen();
+  k.splice(index, 1);
+  setKitchen(k);
+  renderPedidosCocina();
+}
+
 
 function completarPedido(i) {
   const k = getKitchen(), done = k.splice(i, 1)[0]; 
@@ -396,6 +415,10 @@ function mostrarAlertaStockMinimo(nombreProducto) {
   }, 5000);
 }
 
+function cargarProductos() {
+  const datos = localStorage.getItem("productos");
+  return datos ? JSON.parse(datos) : [];
+}
 
 
 //index
