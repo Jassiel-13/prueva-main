@@ -1,0 +1,46 @@
+function renderPedidoMesero() {
+  const cont = document.getElementById("pedidoMesero");
+  if (!cont) return;
+
+  const usuario = localStorage.getItem("usuario");
+  const mesa = localStorage.getItem("mesa");
+  const pedido = getPedido();
+
+  cont.innerHTML = "";
+
+  if (!pedido.length) {
+    cont.innerHTML = "<p>No hay productos.</p>";
+    return;
+  }
+
+  cont.innerHTML += `
+    <p><strong>Cliente:</strong> ${usuario}</p>
+    <p><strong>Mesa:</strong> ${mesa}</p>
+    <h4>Productos:</h4>
+  `;
+
+  pedido.forEach((item, i) => {
+    const listaIngredientes = item.ingredientes?.length
+      ? item.ingredientes.join(", ")
+      : "Sin ingredientes";
+
+    const agregados = item.agregados?.length
+      ? item.agregados.join(", ")
+      : "Ninguno";
+
+    const quitados = item.quitados?.length
+      ? item.quitados.join(", ")
+      : "Ninguno";
+
+    cont.innerHTML += `
+      <div class="producto">
+        <p><strong>${i}. ${item.nombre}</strong></p>
+        <p>🧂 Ingredientes actuales: ${listaIngredientes}</p>
+        <p style="color:green;">➕ Agregados: ${agregados}</p>
+        <p style="color:red;">➖ Quitados: ${quitados}</p>
+        <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${i})">Eliminar</button>
+        <button class="btn btn-sm btn-warning" onclick="editarProducto(${i})">Editar</button> <!-- Botón de editar -->
+      </div>
+    `;
+  });
+}

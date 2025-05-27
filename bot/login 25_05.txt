@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Mesero</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-container {
+      background-color: white;
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .error {
+      color: red;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Login</h2>
+    <input type="text" id="usuario" placeholder="Usuario" required>
+    <input type="password" id="contrasena" placeholder="Contraseña" required>
+    <button onclick="iniciarSesion()">Ingresar</button>
+    <p id="mensajeError" class="error"></p>
+  </div>
+
+  <script>
+    function getUsuarios() {
+      let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+      const base = [
+        { usuario: 'mesero', contrasena: '1234', rol: 'mesero' },
+        { usuario: 'admin', contrasena: 'admin123', rol: 'admin' }
+      ];
+
+      // Agrega los usuarios base si no existen
+      base.forEach(baseUser => {
+        if (!usuarios.some(u => u.usuario === baseUser.usuario)) {
+          usuarios.push(baseUser);
+        }
+      });
+
+      // Guarda la lista actualizada en localStorage
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+      return usuarios;
+    }
+
+    function iniciarSesion() {
+      const usuario = document.getElementById("usuario").value.trim();
+      const contrasena = document.getElementById("contrasena").value.trim();
+      const mensajeError = document.getElementById("mensajeError");
+      const usuarios = getUsuarios();
+
+      const encontrado = usuarios.find(u => u.usuario === usuario && u.contrasena === contrasena);
+
+      if (!encontrado) {
+        mensajeError.textContent = "Usuario o contraseña incorrectos";
+        return;
+      }
+
+      // Guardamos sesión (simple)
+      localStorage.setItem("usuarioActivo", JSON.stringify(encontrado));
+
+      // Redirigir según rol
+      if (encontrado.rol === "admin") {
+        window.location.href = "admin.html";
+      } else if (encontrado.rol === "mesero") {
+        window.location.href = "mesero.html";
+      }
+    }
+  </script>
+</body>
+</html>

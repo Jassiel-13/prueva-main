@@ -5,10 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin - Panel Completo</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="src/assets/js/log.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="container py-4">
 
@@ -47,121 +45,40 @@
     <div id="pedidosCompletados"></div>
   </section>
 
-  <!-- Usuarios -->
-  <section class="mt-5">
-    <h3>👤 Administración de Usuarios</h3>
-    <div class="d-flex flex-wrap gap-2 mb-3">
-      <input type="text" class="form-control" id="nuevoUsuario" placeholder="Usuario">
-      <input type="password" class="form-control" id="nuevaContrasena" placeholder="Contraseña">
-      <select class="form-select" id="rolUsuario">
-        <option value="mesero">Mesero</option>
-        <option value="admin">Admin</option>
-      </select>
-      <button class="btn btn-primary" onclick="agregarUsuario()">Agregar</button>
-    </div>
-    <ul id="listaUsuarios" class="list-group"></ul>
-  </section>
+ <!-- Sección de usuarios -->
+<section class="mt-5">
+  <h3>👤 Administración de Usuarios</h3>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      renderInventarioAdmin();
-      mostrarHistorial();
-      renderPedidosCompletados();
-      renderUsuarios();
-    });
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    <input type="text" class="form-control" id="nuevoUsuario" placeholder="Usuario">
+    <input type="password" class="form-control" id="nuevaContrasena" placeholder="Contraseña">
+    <select class="form-select" id="rolUsuario">
+      <option value="mesero">Mesero</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button class="btn btn-primary" onclick="agregarUsuario()">Agregar</button>
+     <button class="btn btn-secondary" onclick="visualizarListaUsuarios()">Visualizar Lista</button>
+    <button class="btn btn-outline-secondary" onclick="ocultarListaUsuarios()">Ocultar Lista</button>
+  </div>
 
-    // Historial
-    function mostrarHistorial() {
-      const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
-      const listaHistorial = document.getElementById('listaHistorial');
-      const totalRecaudado = document.getElementById('totalRecaudado');
-      let total = 0;
+  <!-- Lista de Usuarios Registrados -->
+  <div class="table-responsive">
+    <table class="table table-striped" id="tablaUsuarios">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="listaUsuarios">
+        <!-- Aquí se renderizarán los usuarios -->
+      </tbody>
+    </table>
+  </div>
+</section>
 
-      listaHistorial.innerHTML = '';
-      historial.forEach((pedido, index) => {
-        const li = document.createElement('li');
-        li.className = 'list-group-item';
-        li.textContent = `#${index + 1} | Mesa ${pedido.mesa} | ${pedido.producto} x${pedido.cantidad} = $${pedido.total.toFixed(2)} | ${pedido.fecha}`;
-        listaHistorial.appendChild(li);
-        total += pedido.total;
-      });
-      totalRecaudado.textContent = total.toFixed(2);
-    }
 
-    // PDF
-    document.getElementById('btnPDF').addEventListener('click', () => {
-      const contenido = document.getElementById('contenidoHistorial');
-      html2pdf().set({
-        margin: 0.5,
-        filename: 'historial_pedidos.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-      }).from(contenido).save();
-    });
-
-    // Pedidos Completados
-    function renderPedidosCompletados() {
-      const cont = document.getElementById("pedidosCompletados");
-      const completados = JSON.parse(localStorage.getItem("kitchenCompleted")) || [];
-      if (!cont) return;
-      if (!completados.length) {
-        cont.innerHTML = "<p>No hay pedidos completados.</p>";
-        return;
-      }
-      cont.innerHTML = completados.map((p, i) => `
-        <div class="card mb-2">
-          <div class="card-header">
-            #${i + 1} - Mesa ${p.mesa} - ${p.usuario} - ${new Date(p.timestamp).toLocaleString()}
-          </div>
-          <ul class="list-group list-group-flush">
-            ${p.items.map(item => `<li class="list-group-item">${item.nombre}</li>`).join("")}
-          </ul>
-        </div>
-      `).join("");
-    }
-
-    // Usuarios
-    function getUsuarios() {
-      return JSON.parse(localStorage.getItem("usuarios")) || [];
-    }
-    function setUsuarios(usuarios) {
-      localStorage.setItem("usuarios", JSON.stringify(usuarios));
-    }
-    function agregarUsuario() {
-      const nombre = document.getElementById("nuevoUsuario").value.trim();
-      const contrasena = document.getElementById("nuevaContrasena").value.trim();
-      const rol = document.getElementById("rolUsuario").value;
-
-      if (!nombre || !contrasena) return alert("Completa todos los campos.");
-      const usuarios = getUsuarios();
-      if (usuarios.find(u => u.usuario === nombre)) return alert("Ese usuario ya existe.");
-
-      usuarios.push({ usuario: nombre, contrasena, rol });
-      setUsuarios(usuarios);
-      renderUsuarios();
-    }
-    function eliminarUsuario(index) {
-      const usuarios = getUsuarios();
-      usuarios.splice(index, 1);
-      setUsuarios(usuarios);
-      renderUsuarios();
-    }
-    function renderUsuarios() {
-      const lista = document.getElementById("listaUsuarios");
-      const usuarios = getUsuarios();
-      lista.innerHTML = usuarios.map((u, i) => `
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          ${u.usuario} <span class="badge bg-secondary">${u.rol}</span>
-          <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${i})">Eliminar</button>
-        </li>
-      `).join("");
-    }
-
-    function cerrarSesion() {
-      localStorage.clear();
-      window.location.href = "login.html";
-    }
-  </script>
+<script src="src/assets/js/admin.js"></script>
 </body>
 </html>

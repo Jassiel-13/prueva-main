@@ -7,7 +7,7 @@ const productos = [
   { id: 5, nombre: "Hamburguesa Mixta", imagen: "img/MIXTA.png", ingredientes: ["Lechuga", "Tomate", "Queso", "Cebolla" , "Carne" , "Pollo" , "Catsup" , "Pan"], stock: 5, minStock: 2 },
   { id: 6, nombre: "Hamburguesa de pollo", imagen: "img/POLLO.png", ingredientes: ["Lechuga", "Tomate", "Queso", "Cebolla" , "Pollo" , "Catsup" , "Pan"], stock: 5, minStock: 2 },
   { id: 7, nombre: "Hamburguesa de Vegetariana", imagen: "img/VEGETARIANA.png", ingredientes: ["Lechuga", "Tomate", "Queso", "Cebolla" , "Hongo" , "Mantequilla" , "Pan"], stock: 5, minStock: 2 },
-  { id: 8, nombre: "Banderilla", imagen: "img/ban.png", ingredientes: ["Lechuga", "Tomate", "Queso", "Cebolla" , "Hongo" , "Mantequilla" , "Pan"], stock: 5, minStock: 2 },
+  { id: 8, nombre: "Banderia", imagen: "img/ban.png", ingredientes: ["Lechuga", "Tomate", "Queso", "Cebolla" , "Hongo" , "Mantequilla" , "Pan"], stock: 5, minStock: 2 },
   { id: 9, nombre: "Hot dog", imagen: "img/HOT DOG.png", ingredientes: ["Cebolla", "Tomate", "Catsup", "Mostaza" , "Salchica" , "Pan"], stock: 5, minStock: 2 },
   { id: 10, nombre: "Salchipapas", imagen: "img/SALCHI.png", ingredientes: ["Sazonador", "Papas", "Salchicha"], stock: 5, minStock: 2 },
   { id: 11, nombre: "Orden de papas", imagen: "img/PAPAS.png", ingredientes: ["Sazonador", "Papas"], stock: 5, minStock: 2 },
@@ -30,6 +30,24 @@ function getPedido() { return JSON.parse(localStorage.getItem("pedido")) || []; 
 function setPedido(p) { localStorage.setItem("pedido", JSON.stringify(p)); }
 function getKitchen() { return JSON.parse(localStorage.getItem("kitchenOrders")) || []; }
 function setKitchen(k) { localStorage.setItem("kitchenOrders", JSON.stringify(k)); }
+
+
+function getPedido() {
+  const mesa = localStorage.getItem("mesa") || "default";
+  return JSON.parse(localStorage.getItem(`pedido_${mesa}`)) || [];
+}
+
+function setPedido(p) {
+  const mesa = localStorage.getItem("mesa") || "default";
+  localStorage.setItem(`pedido_${mesa}`, JSON.stringify(p));
+}
+
+
+
+
+
+
+
 
 // ── MENÚ ──────────────────────────────────────────────────────────────
 function renderMenu() {
@@ -64,8 +82,14 @@ function renderMenu() {
     contenedor.appendChild(col);
   });
 }
-
 function agregarAlPedido(id) {
+  // Verificar si la mesa está bloqueada
+  const mesaBloqueada = localStorage.getItem("mesaBloqueada") === "true";
+  if (mesaBloqueada) {
+    alert("La mesa está bloqueada. No se pueden agregar más productos.");
+    return;  // Detener la ejecución si la mesa está bloqueada
+  }
+
   const pedido = getPedido();
   const producto = productos.find(p => p.id === id);
 
@@ -140,43 +164,65 @@ function enviarACocina() {
   const pd = getPedido();
   if (!pd.length) return alert("No hay nada.");
   const k = getKitchen();
-  k.push({ mesa: localStorage.getItem("mesa"), usuario: localStorage.getItem("usuario"), items: pd, timestamp: Date.now() });
-  setKitchen(k); setPedido([]); renderPedidoMesero(); actualizarContador(); alert("Enviado a cocina");
+
+  // Generar pedido para cocina con mesa y usuario
+  k.push({
+    mesa: localStorage.getItem("mesa"),
+    usuario: localStorage.getItem("usuario"),
+    items: pd,
+    timestamp: Date.now()
+  });
+
+  setKitchen(k);
+  setPedido([]);
+  renderPedidoMesero();
+  actualizarContador();
+  alert("Enviado a cocina");
+
+  // Bloquear la mesa después de enviar el pedido
+  bloquearMesa();
 }
+
+
 
 // ── COCINA ────────────────────────────────────────────────────────────
 function renderPedidosCocina() {
-  const cont = document.getElementById("pedidosCocina"); if (!cont) return;
-  const k = getKitchen(); cont.innerHTML = "";
-  if (!k.length) {
-    cont.innerHTML = "<p>No hay pedidos.</p>";
+  const cont = document.getElementById("pedidosCocina");
+  if (!cont) return;
+
+  const kitchenOrders = getKitchen();
+  cont.innerHTML = "";
+
+  if (!kitchenOrders.length) {
+    cont.innerHTML = "<p>No hay pedidos en cocina.</p>";
     return;
   }
-  const tbl = document.createElement("table"); tbl.className = "table";
-  tbl.innerHTML = `<thead><tr><th>Mesa</th><th>Usuario</th><th>Productos</th><th>Acción</th></tr></thead>`;
-  const tb = document.createElement("tbody");
-  k.forEach((pd, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${pd.mesa}</td><td>${pd.usuario}</td><td><ul>${pd.items.map(x => `<li>${x.nombre}</li>`).join("")}</ul></td>
-      <td><button class="btn btn-sm btn-success" onclick="completarPedido(${i})">Listo</button></td>`;
-    tb.appendChild(tr);
+
+  kitchenOrders.forEach((pedido, index) => {
+    const card = document.createElement("div");
+    card.className = "card mb-3";
+    card.innerHTML = `
+      <div class="card-header bg-dark text-white">
+        Mesa ${pedido.mesa} — ${pedido.usuario} — ${new Date(pedido.timestamp).toLocaleTimeString()}
+      </div>
+      <ul class="list-group list-group-flush">
+        ${pedido.items.map(item => `
+          <li class="list-group-item">
+            <strong>${item.nombre}</strong>
+            <br>
+            <small>Ingredientes: ${item.ingredientes.join(", ")}</small>
+          </li>
+        `).join("")}
+      </ul>
+    `;
+    cont.appendChild(card);
   });
-  tbl.appendChild(tb); cont.appendChild(tbl);
-  
 }
 
+
 function completarPedido(i) {
-  const k = getKitchen(), done = k.splice(i, 1)[0]; 
-  setKitchen(k);
-
-  // Guardamos el pedido completado
-  const c = JSON.parse(localStorage.getItem("kitchenCompleted")) || []; 
-  c.push(done); 
-  localStorage.setItem("kitchenCompleted", JSON.stringify(c));
-
-  // Llamamos a la función que libera la mesa
-  liberarMesa(done.mesa);
-
+  const k = getKitchen(), done = k.splice(i, 1)[0]; setKitchen(k);
+  const c = JSON.parse(localStorage.getItem("kitchenCompleted")) || []; c.push(done); localStorage.setItem("kitchenCompleted", JSON.stringify(c));
   renderPedidosCocina();
 }
 
@@ -341,26 +387,46 @@ function guardarEdicion(index) {
 
 
 
-function eliminarDelPedido(index) {
-  const pedido = getPedido();
-  pedido.splice(index, 1);
-  localStorage.setItem("pedido", JSON.stringify(pedido));
-  renderOrdenModal(); // Redibuja el modal
-  actualizarContadorPedido(); // Actualiza el número del carrito
-}
+function eliminarDelPedido(i) {
+  const pd = getPedido(); 
+  pd.splice(i, 1);  // Elimina el producto en el índice i
+  
+  setPedido(pd);  // Guarda los cambios en el localStorage
 
+  // Muestra un mensaje de confirmación
+  const mensaje = document.createElement("div");
+  mensaje.textContent = "Producto eliminado";
+  mensaje.className = "mensaje-eliminado"; // Clase para el estilo del mensaje
+  document.body.appendChild(mensaje);
+
+  // Establece un temporizador para que el mensaje desaparezca después de 3 segundos
+  setTimeout(() => {
+    mensaje.remove();
+  }, 3000);
+
+  // Vuelve a renderizar el pedido en el modal
+  renderPedidoMesero();
+
+  // Actualiza el contador de productos
+  actualizarContador();
+  
+  // Recarga el modal o actualiza el contenido
+  // Si estás usando un modal, puedes usar alguna de estas opciones:
+  const modal = document.getElementById("modalPedido"); // Asegúrate de que el id corresponda a tu modal
+  if (modal) {
+    modal.scrollTop = 0;  // Desplaza el modal al principio
+  }
+}
 
 
 function actualizarContadorPedido() {
   const contador = document.getElementById("contadorOrden");
+  
   const pedido = getPedido();
   contador.textContent = pedido.length;
 }
 
-// Función de utilidad que debes tener en tu script
-function getPedido() {
-  return JSON.parse(localStorage.getItem("pedido")) || [];
-}
+
 
 
 //MODIFICAR IMPORTANTE, NECESITA ACTUALIZAR EL CONTADOR
@@ -371,14 +437,24 @@ function enviarAlMesero() {
     return;
   }
 
-    // Actualizar el contador a 0
-  actualizarContador();
-  alert("Pedido enviado al mesero.");
-window.location.href = "index.html";
+    // Vaciar el pedido después de enviarlo
+  //localStorage.removeItem("pedido");
+  
 
-  // Si quieres hacer alguna acción adicional antes de redirigir, como guardar en un servidor, puedes hacerla aquí.
+  // Actualizar visualmente el contador a 0
+  actualizarContadorPedido();
+
+  alert("Pedido enviado al mesero.");
+  window.location.href = "index.html";
+
 }
 
 
 
-//index
+
+
+
+
+function bloquearMesa() {
+  localStorage.setItem("mesaBloqueada", "true");
+}

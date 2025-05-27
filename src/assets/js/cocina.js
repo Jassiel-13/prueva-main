@@ -1,4 +1,4 @@
-// ── Datos de productos con stock y mínimos ────────────────────────────
+ // ── Datos de productos con stock y mínimos ────────────────────────────
 const productos = [
   { id: 1, nombre: "Hamburguesa Clásica", imagen: "img/CLASICA.png", ingredientes: ["Lechuga", "Tomate", "Queso", "Cebolla" , "Carne" , "Catsup" , "Pan"], stock: 10, minStock: 3 },
   { id: 2, nombre: "Hamburguesa BBQ", imagen: "img/BBQ.png", ingredientes: ["Bacon", "Lechuga", "Tomate", "Cebolla" , "Carne" , "Cebolla caramelizada", "Salsa BBQ" , "Pan"], stock: 5, minStock: 2 },
@@ -25,6 +25,8 @@ const productos = [
   { id: 19, nombre: "Agua de Limón", imagen: "img/LIMON.png", ingredientes: [], stock: 10, minStock: 3 }
 ];
 
+function getHistorial() { return JSON.parse(localStorage.getItem('historialPedidos')) || []; }
+function setHistorial(historial) { localStorage.setItem('historialPedidos', JSON.stringify(historial)); }
 // ── Helpers LocalStorage ───────────────────────────────────────────────
 function getPedido() { return JSON.parse(localStorage.getItem("pedido")) || []; }
 function setPedido(p) { localStorage.setItem("pedido", JSON.stringify(p)); }
@@ -65,9 +67,15 @@ function renderMenu() {
   });
 }
 
+// ── AGREGAR EL PEDIDO ────────────────────────────────────────────────────
 function agregarAlPedido(id) {
   const pedido = getPedido();
   const producto = productos.find(p => p.id === id);
+
+  const ingredientesQuitados = producto.ingredientes.filter(ingrediente => {
+    const checkbox = document.getElementById(`check-${id}-${ingrediente}`);
+    return checkbox && !checkbox.checked;
+  });
 
   const ingredientesSeleccionados = producto.ingredientes.filter(ingrediente => {
     const checkbox = document.getElementById(`check-${id}-${ingrediente}`);
@@ -75,7 +83,9 @@ function agregarAlPedido(id) {
   });
 
   const extraInput = document.getElementById(`extra-${id}`);
+  const ingredientesAgregados = [];
   if (extraInput && extraInput.value.trim() !== "") {
+    ingredientesAgregados.push(extraInput.value.trim());
     ingredientesSeleccionados.push(extraInput.value.trim());
   }
 
@@ -83,7 +93,9 @@ function agregarAlPedido(id) {
     id: producto.id,
     nombre: producto.nombre,
     imagen: producto.imagen,
-    ingredientes: ingredientesSeleccionados
+    ingredientes: ingredientesSeleccionados,
+    agregados: ingredientesAgregados,
+    quitados: ingredientesQuitados
   };
 
   pedido.push(pedidoFinal);
@@ -95,76 +107,127 @@ function agregarAlPedido(id) {
 // ── CONTADOR ICONO ────────────────────────────────────────────────────
 function actualizarContador() {
   const c = document.getElementById("contadorOrden");
-  if (c) c.textContent = getPedido().length;  // Actualiza el contador del pedido
-}
-
-function agregarAlCarrito(producto, ingredientes) {
-  // Verifica si el producto ya está en el carrito
-  const pedido = getPedido();
-  if (pedido.some(item => item.id === producto.id)) {
-    return alert("Este producto ya está en el carrito.");
-  }
-
-  // Agregar al carrito
-  pedido.push({ ...producto, ingredientes });
-  setPedido(pedido);
-  actualizarContador(); // Actualiza el contador de productos
-}
-
-
-// Función para login del mesero
-function iniciarSesion() {
-  const usuario = document.getElementById('usuario').value;
-  const contrasena = document.getElementById('contrasena').value;
-  const mensajeError = document.getElementById('mensajeError');
-
-  if (usuario === "mesero" && contrasena === "1234") {
-      window.location.href = "mesero.html";
-  } else {
-      mensajeError.textContent = "Usuario o contraseña incorrectos.";
-  }
-}
-
-function cerrarSesion() {
-  window.location.href = "login.html";
+  if (c) c.textContent = getPedido().length;
 }
 
 // ── MESERO ────────────────────────────────────────────────────────────
 function renderPedidoMesero() {
   const cont = document.getElementById("pedidoMesero");
   if (!cont) return;
-  const saludo = document.getElementById("saludoMesero");
-  if (saludo) saludo.textContent = `Hola, ${localStorage.getItem("usuario")} — Mesa ${localStorage.getItem("mesa")}`;
-  const pedido = getPedido(); cont.innerHTML = "";
+
+  const usuario = localStorage.getItem("usuario");
+  const mesa = localStorage.getItem("mesa");
+  const pedido = getPedido();
+
+  cont.innerHTML = "";
+
   if (!pedido.length) {
     cont.innerHTML = "<p>No hay productos.</p>";
     return;
   }
-  const tbl = document.createElement("table"); tbl.className = "table";
-  tbl.innerHTML = `<thead><tr><th>Producto</th><th>Acción</th></tr></thead>`;
-  const tb = document.createElement("tbody");
-  pedido.forEach((it, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${it.nombre}</td><td>
-      <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${i})">Eliminar</button>
-    </td>`;
-    tb.appendChild(tr);
+
+  cont.innerHTML += `
+    <p><strong>Cliente:</strong> ${usuario}</p>
+    <p><strong>Mesa:</strong> ${mesa}</p>
+    <h4>Productos:</h4>
+  `;
+
+  pedido.forEach((item, i) => {
+    const listaIngredientes = item.ingredientes?.length
+      ? item.ingredientes.join(", ")
+      : "Sin ingredientes";
+
+    const agregados = item.agregados?.length
+      ? item.agregados.join(", ")
+      : "Ninguno";
+
+    const quitados = item.quitados?.length
+      ? item.quitados.join(", ")
+      : "Ninguno";
+
+    cont.innerHTML += `
+      <div class="producto">
+        <p><strong>${i}. ${item.nombre}</strong></p>
+        <p>🧂 Ingredientes actuales: ${listaIngredientes}</p>
+        <p style="color:green;">➕ Agregados: ${agregados}</p>
+        <p style="color:red;">➖ Quitados: ${quitados}</p>
+        <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${i})">Eliminar</button>
+        <button class="btn btn-sm btn-warning" onclick="editarProducto(${i})">Editar</button> <!-- Botón de editar -->
+      </div>
+    `;
   });
-  tbl.appendChild(tb); cont.appendChild(tbl);
 }
 
-/*function eliminarProducto(i) {
-  const pd = getPedido(); pd.splice(i, 1); setPedido(pd); renderPedidoMesero(); actualizarContador();
-}*/
-function eliminarProducto(boton) {
-  const item = boton.parentElement;
-  item.remove();
+function editarProducto(index) {
+  const pedido = getPedido();
+  const item = pedido[index];
 
-  // Verifica si quedan productos
-  const lista = document.getElementById("detalleOrden");
-  if (lista.children.length === 0) {
-    document.getElementById("mensajeVacio").style.display = "block";
+  // Mostrar un modal con el nombre y los ingredientes actuales
+  const modalContent = document.getElementById("modalEditarContenido");
+  
+  // Crear una lista de checkboxes con los ingredientes actuales
+  modalContent.innerHTML = `
+    <h5>Editar ${item.nombre}</h5>
+    <div>
+      <strong>Ingredientes actuales:</strong>
+      <ul id="ingredientesLista">
+        ${item.ingredientes.map((ingrediente, i) => `
+          
+            <input type="checkbox" id="ingrediente${i}" ${item.ingredientes.includes(ingrediente) ? 'checked' : ''}>
+            <label for="ingrediente${i}">${ingrediente}</label><br>
+          `).join("")}
+      </ul>
+      <label for="nuevoIngrediente">Nuevo ingrediente:</label>
+      <input type="text" id="nuevoIngrediente" class="form-control" placeholder="Ej: Jalapeños">
+      <button class="btn btn-success mt-2" onclick="guardarEdicion(${index})">Guardar cambios</button>
+    </div>
+  `;
+  
+  // Mostrar el modal de edición
+  const modal = new bootstrap.Modal(document.getElementById('modalEditar'));
+  modal.show();
+}
+
+function guardarEdicion(index) {
+  const pedido = getPedido();
+  const item = pedido[index];
+  
+  // Obtener la lista de checkboxes y actualizar los ingredientes según las casillas seleccionadas
+  const checkboxes = document.querySelectorAll('#ingredientesLista input[type="checkbox"]');
+  const ingredientesEditados = [];
+
+  checkboxes.forEach(checkbox => {
+    if (checkbox.checked) {
+      ingredientesEditados.push(checkbox.nextElementSibling.textContent); // El ingrediente es el texto del label
+    }
+  });
+
+  // Si el campo "Nuevo ingrediente" no está vacío, añadirlo a la lista
+  const nuevoIngrediente = document.getElementById('nuevoIngrediente').value.trim();
+  if (nuevoIngrediente !== "") {
+    ingredientesEditados.push(nuevoIngrediente);
   }
+
+  // Actualizar los ingredientes en el pedido
+  item.ingredientes = ingredientesEditados;
+
+  // Guardar el carrito actualizado en localStorage
+  setPedido(pedido);
+
+  // Cerrar el modal después de guardar
+  const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditar'));
+  if (modal) modal.hide();
+
+  // Redibujar el modal de la orden con los cambios
+  renderOrdenModal();
+
+  // Actualizar el contador del carrito
+  actualizarContador();
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+function eliminarProducto(i) {
+  const pd = getPedido(); pd.splice(i, 1); setPedido(pd); renderPedidoMesero(); actualizarContador();
 }
 
 function vaciarPedido() {
@@ -177,38 +240,35 @@ function enviarACocina() {
   const pd = getPedido();
   if (!pd.length) return alert("No hay nada.");
 
+  const mesa = localStorage.getItem("mesa");
+  const usuario = localStorage.getItem("usuario");
+  const timestamp = Date.now();
+
+  // Guardar en cocina
   const k = getKitchen();
-  k.push({
-    mesa: localStorage.getItem("mesa"),
-    usuario: localStorage.getItem("usuario"),
-    items: pd,
-    timestamp: Date.now()
-  });
+  k.push({ mesa, usuario, items: pd, timestamp });
   setKitchen(k);
-  setPedido([]);  // Limpia el carrito después de enviar
+
+  // Guardar en historial
+  const historial = getHistorial();
+  historial.push(...pd.map(p => ({
+    id: p.id,
+    nombre: p.nombre,
+    fecha: new Date().toISOString().split("T")[0] // YYYY-MM-DD
+  })));
+  setHistorial(historial);
+
+  setPedido([]);
   renderPedidoMesero();
-  actualizarContador();  // Actualiza el contador en el frontend
-  alert("Pedido enviado a cocina");
+  actualizarContador();
+  alert("Enviado a cocina");
+  setKitchen(nuevosPedidos);
+// location.reload();  <-- ¡ya no necesario!
+actualizarVistaCocina();
 }
 
-function enviarAlMesero() {
-  const pd = getPedido();
-  if (!pd.length) return alert("No hay nada.");
-
-  const m = getMesero();
-  m.push({
-    mesa: localStorage.getItem("mesa"),
-    usuario: localStorage.getItem("usuario"),
-    items: pd,
-    timestamp: Date.now()
-  });
-  setMesero(m);
-  setPedido([]);  // Limpia el carrito
-  alert("Pedido enviado al mesero");
-}
-
-
-
+//-----------------------------------------------------------------------------------------------------------------------------------------------
+// ── COCINA ────────────────────────────────────────────────────────────
 // ── COCINA ────────────────────────────────────────────────────────────
 function renderPedidosCocina() {
   const cont = document.getElementById("pedidosCocina");
@@ -244,7 +304,21 @@ function renderPedidosCocina() {
     const ul = document.createElement("ul");
     pedido.items.forEach(item => {
       const li = document.createElement("li");
-      li.textContent = `${item.cantidad || 1} ${item.nombre}`;
+
+      // Mostrar nombre del producto
+      let texto = `${item.nombre}`;
+
+      // Mostrar ingredientes seleccionados
+      if (item.ingredientes && item.ingredientes.length > 0) {
+        texto += ` - Ingredientes: ${item.ingredientes.join(", ")}`;
+      }
+
+      // Mostrar ingredientes extras (si los hay)
+      if (item.extra && item.extra.length > 0) {
+        texto += ` - Extras: ${item.extra}`;
+      }
+
+      li.textContent = texto;
       ul.appendChild(li);
     });
 
@@ -252,107 +326,173 @@ function renderPedidosCocina() {
     card.appendChild(body);
 
     // Botón para marcar pedido como completado
-    const btn = document.createElement("button");
-    btn.className = "btn btn-sm btn-success";
-    btn.textContent = "Listo";
-    btn.onclick = () => completarPedido(i);
-    card.appendChild(btn);
+    const footer = document.createElement("div");
+    footer.className = "order-footer";
+    const button = document.createElement("button");
+    button.className = "btn btn-success";
+    button.textContent = "Marcar como completado";
+    button.onclick = () => completarPedido(i);
+    footer.appendChild(button);
+    card.appendChild(footer);
 
-    // Agregar tarjeta al grid
     grid.appendChild(card);
   });
 
-  // Insertar el grid en el contenedor
   cont.appendChild(grid);
 }
-function completarPedido(i) {
-  const kitchen = getKitchen(); // Obtiene todos los pedidos actuales
-  const pedidoCompleto = kitchen.splice(i, 1)[0]; // Elimina el pedido completado
 
-  // Guarda los pedidos actualizados
-  setKitchen(kitchen);
+// Función para marcar pedido como completado
+function completarPedido(index) {
+  const pedidos = getKitchen();
+  const pedido = pedidos[index];
+  
+  // Cambiar el estado del pedido
+  pedido.estado = "completado";
+  
+  // Actualizar la lista de pedidos
+  setKitchen(pedidos);
 
-  // Guarda el pedido como completado
-  const completados = JSON.parse(localStorage.getItem("kitchenCompleted")) || [];
-  completados.push(pedidoCompleto);
-  localStorage.setItem("kitchenCompleted", JSON.stringify(completados));
-
-  // Vuelve a renderizar los pedidos
+  // Volver a renderizar los pedidos
   renderPedidosCocina();
 }
 
-function getOrderStatus(pedido) {
-  const estados = pedido.items.map(item => item.estado);
 
-  if (estados.every(e => e === "listo")) return "completed";
-  if (estados.some(e => e === "en proceso")) return "inprocess";
-  return "pending";
-}
-// Función para actualizar la hora cada segundo
-setInterval(() => {
-  const now = new Date(); // Obtiene la hora actual
-  const hours = now.getHours(); // Hora en formato 24h
-  const minutes = now.getMinutes().toString().padStart(2, '0'); // Asegura que los minutos tengan 2 dígitos
-  const ampm = hours >= 12 ? 'pm' : 'am'; // Determina si es am o pm
-  const hour12 = hours % 12 || 12; // Convierte a formato de 12h
+// ================= ADMIN =====================
 
-  // Actualiza el contenido del elemento con id="time"
-  document.getElementById("time").textContent = `${hour12}:${minutes} ${ampm}`;
-}, 1000); // Ejecuta esta función cada 1000 ms (1 segundo)
-
-// ── ADMIN ─────────────────────────────────────────────────────────────
+// Inventario: mostrar y editar
 function renderInventarioAdmin() {
-  const tbody = document.getElementById("tablaInventario");
-  tbody.innerHTML = "";  // Limpia la tabla actual
-  productos.forEach(producto => {
+  const tbody = document.getElementById("inventarioAdmin");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  productos.forEach(p => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${producto.nombre}</td>
-      <td><img src="${producto.imagen}" alt="${producto.nombre}" style="width: 50px;"></td>
-      <td><input type="number" id="stk-${producto.id}" value="${producto.stock}" min="0"></td>
-      <td><input type="number" id="min-${producto.id}" value="${producto.minStock}" min="0"></td>
-      <td><button onclick="updateStock(${producto.id})">Actualizar</button></td>
+      <td>${p.nombre}</td>
+      <td><input type="number" id="stk-${p.id}" value="${p.stock}" class="form-control form-control-sm"/></td>
+      <td><input type="number" id="min-${p.id}" value="${p.minStock}" class="form-control form-control-sm"/></td>
+      <td><button class="btn btn-sm btn-primary" onclick="updateStock(${p.id})">Guardar</button></td>
     `;
+    if (p.stock <= p.minStock) tr.classList.add("table-warning");
     tbody.appendChild(tr);
   });
 }
 
 function updateStock(id) {
-  const producto = productos.find(p => p.id === id);
-  const nuevoStock = parseInt(document.getElementById(`stk-${id}`).value, 10);
-  const nuevoMinStock = parseInt(document.getElementById(`min-${id}`).value, 10);
-
-  if (!isNaN(nuevoStock) && !isNaN(nuevoMinStock)) {
-    producto.stock = nuevoStock;
-    producto.minStock = nuevoMinStock;
-    renderInventarioAdmin();  // Vuelve a renderizar la tabla
-    alert("Inventario actualizado");
-  } else {
-    alert("Por favor, ingresa valores válidos.");
-  }
+  const p = productos.find(x => x.id === id);
+  p.stock = parseInt(document.getElementById(`stk-${id}`).value, 10);
+  p.minStock = parseInt(document.getElementById(`min-${id}`).value, 10);
+  renderInventarioAdmin();
 }
 
+// Historial de pedidos (simple por nombre y fecha)
+function getHistorial() {
+  return JSON.parse(localStorage.getItem('historialPedidos')) || [];
+}
 
-// ── REPORTES ──────────────────────────────────────────────────────────
+function renderHistorialPedidos() {
+  const historial = getHistorial();
+  const lista = document.getElementById("listaHistorial");
+  const totalSpan = document.getElementById("totalRecaudado");
+
+  let total = 0;
+  lista.innerHTML = "";
+
+  historial.forEach((pedido, i) => {
+    const li = document.createElement("li");
+    li.className = "list-group-item";
+    li.textContent = `#${i + 1} | ${pedido.fecha} | ${pedido.nombre}`;
+    lista.appendChild(li);
+    total += 100; // Precio fijo por producto
+  });
+
+  totalSpan.textContent = total.toFixed(2);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderHistorialPedidos();
+
+  const btnPDF = document.getElementById("btnPDF");
+  if (btnPDF) {
+    btnPDF.addEventListener("click", () => {
+      const contenido = document.getElementById("contenidoHistorial");
+      if (!contenido || contenido.innerHTML.trim() === "") {
+        alert("No hay contenido para exportar.");
+        return;
+      }
+
+      const opciones = {
+        margin: 0.5,
+        filename: 'historial_pedidos.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opciones).from(contenido).save();
+    });
+  }
+});
+
+
+// Descargar PDF del historial
+function descargarHistorialPDF() {
+  const contenido = document.getElementById("contenidoHistorial");
+  const opciones = {
+    margin: 0.5,
+    filename: 'historial_pedidos.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(opciones).from(contenido).save();
+}
+
+// Ventas por día (usando kitchenCompleted)
 function renderReportes() {
-  const cont = document.getElementById("reportes"); if (!cont) return;
+  const cont = document.getElementById("reportes");
+  if (!cont) return;
+
   const comp = JSON.parse(localStorage.getItem("kitchenCompleted")) || [];
   if (!comp.length) {
     cont.innerHTML = "<p>No hay ventas.</p>";
     return;
   }
+
   const porDia = comp.reduce((a, p) => {
     const d = new Date(p.timestamp).toLocaleDateString();
-    a[d] = a[d] || { total: 0, items: [] };
-    a[d].total += p.items.length * 100;
-    a[d].items.push(...p.items);
+    a[d] = a[d] || {};
+    p.items.forEach(i => {
+      a[d][i.nombre] = (a[d][i.nombre] || 0) + 1;
+    });
     return a;
   }, {});
-  cont.innerHTML = Object.entries(porDia).map(([d, inf]) => `
-    <div class="card mb-3"><div class="card-header">${d} — $${inf.total}</div>
-      <ul class="list-group list-group-flush">${inf.items.map(i => `<li class="list-group-item">${i.nombre}</li>`).join("")}</ul>
-    </div>`).join("");
+
+  cont.innerHTML = Object.entries(porDia).map(([fecha, items]) => `
+    <div class="card mb-3">
+      <div class="card-header">${fecha}</div>
+      <table class="table">
+        <thead><tr><th>Producto</th><th>Cantidad</th></tr></thead>
+        <tbody>
+          ${Object.entries(items).map(([prod, cant]) => `
+            <tr><td>${prod}</td><td>${cant}</td></tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `).join('');
 }
+
+// Inicializar admin
+window.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("inventarioAdmin")) renderInventarioAdmin();
+  if (document.getElementById("listaHistorial")) renderHistorialPedidos();
+  if (document.getElementById("reportes")) renderReportes();
+
+  const btnPDF = document.getElementById("btnPDF");
+  if (btnPDF) btnPDF.addEventListener("click", descargarHistorialPDF);
+});
+
 
 // ── Inicialización ────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
@@ -379,11 +519,11 @@ function renderOrdenModal() {
   const mensaje = document.getElementById("mensajeVacio");
   const pedido = getPedido();
 
-  lista.innerHTML = "";  // Limpia el contenido actual del modal
+  lista.innerHTML = "";
   if (!pedido.length) {
-    mensaje.style.display = "block";  // Muestra mensaje si no hay productos
+    mensaje.style.display = "block";
   } else {
-    mensaje.style.display = "none";  // Oculta mensaje si hay productos
+    mensaje.style.display = "none";
     pedido.forEach(item => {
       const li = document.createElement("li");
       li.className = "list-group-item";
@@ -392,6 +532,27 @@ function renderOrdenModal() {
     });
   }
 }
+
+function enviarAlMesero() {
+  const pedido = getPedido();
+  if (!pd.length) return alert("No hay nada.");
+
+  const m = JSON.parse(localStorage.getItem("ordenesMesero")) || [];
+  m.push({
+    mesa: localStorage.getItem("mesa"),
+    usuario: localStorage.getItem("usuario"),
+    items: pd,
+    timestamp: Date.now()
+  });
+  localStorage.setItem("ordenesMesero", JSON.stringify(m));
+  localStorage.setItem("ordenParaMesero", JSON.stringify(pedido)); // Guarda la orden en el localStorage
+  setPedido([]);  // Limpia el carrito
+  renderPedidoMesero();
+  actualizarContador();
+  alert("Pedido enviado al mesero");
+}
+
+
 
 function enviarOrden() {
   const productos = JSON.parse(localStorage.getItem("carrito")) || [];
@@ -410,3 +571,70 @@ function enviarOrden() {
   const modal = bootstrap.Modal.getInstance(document.getElementById('modalOrden'));
   modal.hide();
 }
+
+//------------log
+function iniciarSesion() {
+    const usuario = document.getElementById("usuario").value.trim();
+    const contrasena = document.getElementById("contrasena").value.trim();
+    const mensajeError = document.getElementById("mensajeError");
+
+    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    const usuarioEncontrado = usuarios.find(u =>
+        u.usuario === usuario && u.contrasena === 1234
+    );
+
+    if (usuarioEncontrado) {
+        localStorage.setItem("usuario", usuario);
+        mensajeError.textContent = "";
+        window.location.href = "menu.html"; // Cambia a tu página principal
+    } else {
+        mensajeError.textContent = "Usuario o contraseña incorrectos.";
+    }
+}
+
+
+function iniciarSesion() {
+  const usuario = document.getElementById('usuario').value;
+  const contrasena = document.getElementById('contrasena').value;
+  const mensajeError = document.getElementById('mensajeError');
+
+  if (usuario === "mesero" && contrasena === "1234") {
+      window.location.href = "mesero.html";
+  } else {
+      mensajeError.textContent = "Usuario o contraseña incorrectos.";
+  }
+}
+
+function cerrarSesion() {
+  window.location.href = "login.html";
+}
+
+async function iniciarSesion() {
+        const usuario = document.getElementById('usuario').value.trim().toLowerCase();
+        const contrasena = document.getElementById('contrasena').value.trim();
+        const mensajeError = document.getElementById('mensajeError');
+
+        try {
+            const respuesta = await fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, contrasena })
+            });
+
+            const data = await respuesta.json();
+
+            if (data.success) {
+                alert(`¡Inicio de sesión exitoso como ${data.rol}!`);
+                localStorage.setItem('usuario', data.rol);
+                window.location.href = data.rol === 'admin' ? 'admin.html' : 'mesero.html';
+            } else {
+                mensajeError.textContent = data.mensaje;
+            }
+        } catch (error) {
+            mensajeError.textContent = 'Error de conexión con el servidor';
+        }
+    }
+
+
+
