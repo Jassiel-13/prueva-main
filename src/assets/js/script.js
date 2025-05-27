@@ -379,6 +379,23 @@ window.location.href = "index.html";
   // Si quieres hacer alguna acción adicional antes de redirigir, como guardar en un servidor, puedes hacerla aquí.
 }
 
+function mostrarAlertaStockMinimo(nombreProducto) {
+  const alerta = document.createElement("div");
+  alerta.className = "alert alert-warning alert-dismissible fade show mt-3";
+  alerta.role = "alert";
+  alerta.innerHTML = `
+    <strong>⚠️ Stock bajo:</strong> El producto <strong>${nombreProducto}</strong> tiene stock mínimo.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  `;
+  document.body.prepend(alerta);
+
+  setTimeout(() => {
+    alerta.classList.remove("show");
+    alerta.classList.add("fade");
+    setTimeout(() => alerta.remove(), 500);
+  }, 5000);
+}
+
 
 
 //index
