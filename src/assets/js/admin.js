@@ -55,18 +55,6 @@ function ocultarListaUsuarios() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     document.addEventListener("DOMContentLoaded", () => {
       renderInventarioAdmin();
       mostrarHistorial();
@@ -185,6 +173,36 @@ function getUsuarios() {
       renderUsuarios();
     }
 
+function renderizarInventario() {
+  const tabla = document.getElementById("inventarioAdmin");
+  tabla.innerHTML = "";
+
+  listaProductos.forEach((producto, index) => {
+    const fila = document.createElement("tr");
+
+    // Aplica clase si el stock es mínimo o menor
+    if (producto.stock <= producto.stockMinimo) {
+      fila.classList.add("table-warning"); // color amarillo
+      if (producto.stock === 0) {
+        fila.classList.replace("table-warning", "table-danger"); // rojo si está agotado
+        mostrarAlertaStockMinimo(producto.nombre);
+      } else {
+        mostrarAlertaStockMinimo(producto.nombre);
+      }
+    }
+
+    fila.innerHTML = `
+      <td>${producto.nombre}</td>
+      <td>${producto.stock}</td>
+      <td>${producto.stockMinimo}</td>
+      <td><button class="btn btn-sm btn-primary" onclick="editarProducto(${index})">Editar</button></td>
+    `;
+    tabla.appendChild(fila);
+  });
+}
+function guardarProductos() {
+  localStorage.setItem("productos", JSON.stringify(listaProductos));
+}
  
 
     // Función de cierre de sesión
