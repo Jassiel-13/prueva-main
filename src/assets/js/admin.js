@@ -113,6 +113,15 @@ function ocultarListaUsuarios() {
       `).join("");
     }
 
+function getInventario() {
+  return JSON.parse(localStorage.getItem("inventario") || "[]");
+}
+
+function setInventario(data) {
+  localStorage.setItem("inventario", JSON.stringify(data));
+}
+
+
     // Usuarios
 function getUsuarios() {
   let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
