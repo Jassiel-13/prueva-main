@@ -58,6 +58,7 @@ function liberarMesa(mesaLiberada) {
         localStorage.removeItem("mesa");
         localStorage.removeItem("producto");
 
+
         location.reload();
       }
     }

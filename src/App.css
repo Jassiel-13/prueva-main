@@ -1,15 +1,20 @@
 /* Importar fuente Kavoon */
 @import url('https://fonts.googleapis.com/css2?family=Kavoon&display=swap');
 
-/* Estilo general */
+/* Estilo general 
+body {
+  font-family: 'Kavoon', cursive;
+  background-color: #FFC986;
+  color: #FFFFFF;
+  padding-top: 20px;
+}*/
 body {
   font-family: 'Kavoon', cursive;
   background: radial-gradient(circle, #FBE3AD 20%, #FFC986 20%) repeat;
   background-size: 100px 100px; /* Tamaño de los círculos */
-  height: 30vh;
+  height: 30 vh;
   margin: 0;
 }
-
 .card-img-top {
   width: 100%;
   height: 250px; /* o 300px si quieres más altura */
@@ -19,24 +24,26 @@ body {
   border-radius: 10px; /* opcional para suavizar bordes */
 }
 
+
 /* Título con imagen */
 .titulo img {
   border-radius: 10px;
 }
-.titulo {
-  gap: 1rem;
-}
+  .titulo {
+    gap: 1rem;
+  }
 
-.logo-soda {
-  height: 120px;
-  object-fit: contain;
-  border-radius: 10px;
-}
+  .logo-soda {
+    height: 120px;
+    object-fit: contain;
+    border-radius: 10px;
 
-.titulo h1 {
-  font-size: 36px;
-  font-weight: bold;
-}
+  }
+
+  .titulo h1 {
+    font-size: 36px;
+    font-weight: bold;
+  }
 
 h1 {
   font-family: 'Kavoon', cursive;
@@ -100,8 +107,7 @@ form {
   h1 {
     font-size: 2rem;
   }
-
-  .modal-dialog {
+    .modal-dialog {
     max-width: 90%; /* El modal ocupará el 90% en pantallas más pequeñas */
   }
 }
@@ -177,41 +183,43 @@ form {
   color: white;
 }
 
-.card {
-  height: 60vh;
-  max-width: 400px;
-}
 
-.card-body {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* centra verticalmente */
-}
+   .card {
+      height: 60vh;
+      max-width: 400px;
+    }
 
-form {
-  flex-grow: 3;
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* centra contenido del formulario */
-}
+    .card-body {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* centra verticalmente */
+    }
 
-.d-grid {
-  margin-top: auto; /* Asegura que el botón quede al final */
-}
+    form {
+      flex-grow: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* centra contenido del formulario */
+    }
 
-.form-control,
-.form-select {
-  font-size: 1.1rem;
-  padding: 0.75rem;
-}
+    .d-grid {
+      margin-top: auto; /* Asegura que el botón quede al final */
+    }
 
-.btn {
-  font-size: 1.2rem;
-  padding: 0.75rem;
-}
+        .form-control,
+    .form-select {
+      font-size: 1.1rem;
+      padding: 0.75rem;
+    }
 
-/* Estilo personalizado para la navbar */
+    .btn {
+      font-size: 1.2rem;
+      padding: 0.75rem;
+    }
+
+
+    /* Estilo personalizado para la navbar */
 .custom-navbar {
   background-color: #FF7A7A;
   color: white;
@@ -252,9 +260,11 @@ form {
   position: relative;
 }
 
+
 .navbar .btn:hover {
   background-color: #f1f1f1;
 }
+
 
 /* Botones pequeños y del mismo tamaño */
 /* Ajuste para botones más pequeños */
@@ -266,317 +276,4 @@ form {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-}
-
-/* ================== Admin panel enhancements ================== */
-
-/* Container adjustments */
-body.container {
-  max-width: 900px;
-  margin: auto;
-  padding-bottom: 2rem;
-  font-family: 'Kavoon', cursive;
-  background: #fff9f1;
-  color: #3a2f1d;
-}
-
-/* Títulos secciones admin */
-h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  color: #8a5c2c;
-  font-size: 2.5rem;
-  font-weight: 700;
-}
-
-section h3 {
-  color: #9c7b4f;
-  border-bottom: 2px solid #e8d8b7;
-  padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-/* Tabla inventario y usuarios */
-table.table {
-  background: #fef7eb;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgb(0 0 0 / 0.05);
-  font-size: 1rem;
-}
-
-table.table th,
-table.table td {
-  vertical-align: middle;
-  text-align: center;
-  color: #4a3b20;
-}
-
-table.table-striped tbody tr.table-warning {
-  background-color: #fff1cc;
-}
-
-/* Inputs dentro de tabla */
-table.table input.form-control-sm {
-  max-width: 80px;
-  margin: auto;
-  border-radius: 8px;
-  border: 1px solid #d1b77a;
-  text-align: center;
-  font-weight: 600;
-  color: #6e5934;
-  font-family: 'Kavoon', cursive;
-}
-
-/* Botones admin */
-.btn-primary {
-  background-color: #b87f2a;
-  border: none;
-  font-weight: 700;
-  font-family: 'Kavoon', cursive;
-  transition: background-color 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #9b6721;
-  color: #fff;
-}
-
-.btn-danger {
-  background-color: #b8422b;
-  font-weight: 700;
-  font-family: 'Kavoon', cursive;
-}
-
-.btn-danger:hover {
-  background-color: #8a2a1d;
-  color: #fff;
-}
-
-.btn-warning {
-  background-color: #d4a64d;
-  font-weight: 700;
-  font-family: 'Kavoon', cursive;
-}
-
-.btn-warning:hover {
-  background-color: #aa8339;
-  color: #fff;
-}
-
-.btn-outline-secondary {
-  border-color: #cbb17b;
-  color: #8b7343;
-}
-
-.btn-outline-secondary:hover {
-  background-color: #cbb17b;
-  color: #fff;
-}
-
-/* Contenedor lista usuarios para scroll en pantallas pequeñas */
-.table-responsive {
-  max-height: 350px;
-  overflow-y: auto;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
-  background: #fef7eb;
-  margin-bottom: 1rem;
-}
-
-/* Flex container inputs usuarios */
-.d-flex.flex-wrap.gap-2.mb-3 {
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.d-flex.flex-wrap.gap-2.mb-3 input,
-.d-flex.flex-wrap.gap-2.mb-3 select,
-.d-flex.flex-wrap.gap-2.mb-3 button {
-  min-width: 180px;
-  margin-bottom: 0.75rem;
-}
-
-/* Total recaudado */
-#totalRecaudado {
-  font-weight: 700;
-  color: #7a5d2f;
-}
-
-/* Historial y pedidos completados */
-#listaHistorial li.list-group-item {
-  background: #fff3cf;
-  font-family: 'Kavoon', cursive;
-  font-size: 1rem;
-  color: #725f3d;
-}
-
-#pedidosCompletados > div.alert {
-  font-family: 'Kavoon', cursive;
-  font-size: 1rem;
-  color: #604a23;
-  background-color: #f8f2d9;
-  border-color: #c6b469;
-}
-
-/* Responsive */
-@media (max-width: 576px) {
-  .d-flex.flex-wrap.gap-2.mb-3 {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  table.table input.form-control-sm {
-    max-width: 100%;
-  }
-
-  h2 {
-    font-size: 2rem;
-  }
-}
-
-/* Estilos para cocina.html */
-
-/* Header general */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #FF7A7A;
-  padding: 10px 20px;
-  font-family: 'Kavoon', cursive;
-  color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(255, 122, 122, 0.6);
-  margin-bottom: 1.5rem;
-}
-
-header .logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-header .logo img {
-  height: 40px;
-  width: auto;
-  border-radius: 6px;
-  object-fit: contain;
-}
-
-header #time {
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-/* Pedidos contenedor */
-#pedidosCocina {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-}
-
-/* Tarjeta de pedido */
-.order {
-  background-color: #fff4e6;
-  border-radius: 1rem;
-  box-shadow: 0 5px 15px rgba(255, 122, 122, 0.2);
-  width: 320px;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  font-family: 'Kavoon', cursive;
-  color: #5a3e2b;
-  transition: transform 0.3s ease;
-}
-
-.order:hover {
-  transform: scale(1.02);
-}
-
-/* Estado pendiente */
-.status-pending {
-  border: 2px solid #FF7A7A;
-}
-
-/* Estado completado */
-.status-completado {
-  border: 2px solid #4CAF50;
-  background-color: #d7f2d7;
-  color: #2f4d2f;
-}
-
-/* Encabezado de pedido */
-.order-header {
-  font-weight: 700;
-  font-size: 1.3rem;
-  margin-bottom: 0.5rem;
-  text-align: center;
-}
-
-/* Cuerpo con lista de productos */
-.order-body ul {
-  list-style: none;
-  padding-left: 0;
-  max-height: 180px;
-  overflow-y: auto;
-  margin-bottom: 0.8rem;
-}
-
-.order-body li {
-  border-bottom: 1px dashed #d4a373;
-  padding: 0.3rem 0;
-  font-size: 1rem;
-}
-
-/* Footer con botón o etiqueta */
-.order-footer {
-  display: flex;
-  justify-content: center;
-}
-
-/* Botón marcar como completado */
-.order-footer .btn-success {
-  background-color: #4CAF50;
-  border-color: #3e8e41;
-  font-weight: 700;
-  font-family: 'Kavoon', cursive;
-  border-radius: 20px;
-  padding: 0.5rem 1.5rem;
-  transition: background-color 0.3s ease;
-  cursor: pointer;
-}
-
-.order-footer .btn-success:hover {
-  background-color: #3e8e41;
-}
-
-/* Badge completado */
-.order-footer .badge.bg-success {
-  font-size: 1rem;
-  padding: 0.5em 1em;
-  border-radius: 1rem;
-}
-
-/* Scroll para pedidos si hay muchos */
-#pedidosCocina .grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-}
-
-/* Responsive */
-@media (max-width: 600px) {
-  #pedidosCocina {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .order {
-    width: 90vw;
-  }
 }

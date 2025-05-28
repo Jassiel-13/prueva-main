@@ -1,298 +1,491 @@
-// --- Usuarios base ---
+
 function inicializarUsuariosBase() {
   const usuarios = getUsuarios();
   const base = [
     { usuario: 'mesero', contrasena: '1234', rol: 'mesero' },
     { usuario: 'admin', contrasena: 'admin123', rol: 'admin' }
   ];
+
+  // Solo agregar si no existen
   base.forEach(baseUser => {
     if (!usuarios.find(u => u.usuario === baseUser.usuario)) {
       usuarios.push(baseUser);
     }
   });
+
   setUsuarios(usuarios);
 }
 
-// --- Obtener y guardar usuarios ---
+
+
+    function visualizarListaUsuarios() {
+  const lista = document.getElementById("listaUsuarios");
+  renderUsuarios(); // Actualiza contenido por si acaso
+  lista.classList.remove("d-none"); // Muestra la lista si estaba oculta
+}
+function ocultarListaUsuarios() {
+  const lista = document.getElementById("listaUsuarios");
+  lista.classList.add("d-none");
+}
+
+
+
+    function renderUsuarios() {
+  const lista = document.getElementById("listaUsuarios");
+  const usuarios = getUsuarios();
+
+  // Limpiar el contenido antes de renderizar la lista
+  lista.innerHTML = '';
+
+  // Mostrar la lista de usuarios
+  usuarios.forEach((u, i) => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${u.usuario}</td>
+      <td><span class="badge bg-secondary">${u.rol}</span></td>
+      <td>
+        <button class="btn btn-sm btn-warning" onclick="editarUsuario(${i})">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${i})">Eliminar</button>
+      </td>
+    `;
+
+    lista.appendChild(tr);
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderInventarioAdmin();
+      mostrarHistorial();
+      renderPedidosCompletados();
+      renderUsuarios();
+    });
+
+    // Historial
+function mostrarHistorial() {
+  const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
+  const listaHistorial = document.getElementById('listaHistorial');
+  const totalRecaudado = document.getElementById('totalRecaudado');
+  let total = 0;
+
+  listaHistorial.innerHTML = '';
+  historial.forEach((pedido, index) => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+    li.textContent = `#${index + 1} | Mesa ${pedido.mesa} | ${pedido.producto} x${pedido.cantidad} = $${pedido.total.toFixed(2)} | ${pedido.fecha}`;
+    listaHistorial.appendChild(li);
+    total += pedido.total;
+  });
+  totalRecaudado.textContent = total.toFixed(2);
+}
+
+
+document.getElementById('btnPDF').addEventListener('click', () => {
+
+
+  html2pdf().from(contenido).save();
+
+
+});
+
+
+
+    // Pedidos Completados
+    function renderPedidosCompletados() {
+      const cont = document.getElementById("pedidosCompletados");
+      const completados = JSON.parse(localStorage.getItem("kitchenCompleted")) || [];
+      if (!cont) return;
+      if (!completados.length) {
+        cont.innerHTML = "<p>No hay pedidos completados.</p>";
+        return;
+      }
+      cont.innerHTML = completados.map((p, i) => `
+        <div class="card mb-2">
+          <div class="card-header">
+            #${i + 1} - Mesa ${p.mesa} - ${p.usuario} - ${new Date(p.timestamp).toLocaleString()}
+          </div>
+          <ul class="list-group list-group-flush">
+            ${p.items.map(item => `<li class="list-group-item">${item.nombre}</li>`).join("")}
+          </ul>
+        </div>
+      `).join("");
+    }
+
+    // Usuarios
 function getUsuarios() {
   let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+  const base = [
+    { usuario: 'mesero', contrasena: '1234', rol: 'mesero' },
+    { usuario: 'admin', contrasena: 'admin123', rol: 'admin' }
+  ];
+
+  // Agrega los usuarios base si no existen
+  base.forEach(baseUser => {
+    if (!usuarios.some(u => u.usuario === baseUser.usuario)) {
+      usuarios.push(baseUser);
+    }
+  });
+
+  // Guarda la lista actualizada en localStorage si se modificó
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
   return usuarios;
 }
 
-function setUsuarios(usuarios) {
-  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    function setUsuarios(usuarios) {
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    }
+    function agregarUsuario() {
+      const nombre = document.getElementById("nuevoUsuario").value.trim();
+      const contrasena = document.getElementById("nuevaContrasena").value.trim();
+      const rol = document.getElementById("rolUsuario").value;
+
+      if (!nombre || !contrasena) return alert("Completa todos los campos.");
+      const usuarios = getUsuarios();
+      if (usuarios.find(u => u.usuario === nombre)) return alert("Ese usuario ya existe.");
+
+      usuarios.push({ usuario: nombre, contrasena, rol });
+      setUsuarios(usuarios);
+      renderUsuarios();
+    }
+
+    function editarUsuario(index) {
+      const usuarios = getUsuarios();
+      const usuario = usuarios[index];
+
+      const nuevoNombre = prompt("Editar nombre de usuario:", usuario.usuario);
+      const nuevaContrasena = prompt("Editar contraseña:", usuario.contrasena);
+
+      if (nuevoNombre && nuevaContrasena) {
+        usuarios[index] = { usuario: nuevoNombre, contrasena: nuevaContrasena, rol: usuario.rol };
+        setUsuarios(usuarios);
+        renderUsuarios();
+      }
+    }
+
+    function eliminarUsuario(index) {
+      const usuarios = getUsuarios();
+      usuarios.splice(index, 1);
+      setUsuarios(usuarios);
+      renderUsuarios();
+    }
+
+ 
+
+    // Función de cierre de sesión
+    function cerrarSesion() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//version 2
+
+
+
+
+function inicializarUsuariosBase() {
+  const usuarios = getUsuarios();
+  const base = [
+    { usuario: 'mesero', contrasena: '1234', rol: 'mesero' },
+    { usuario: 'admin', contrasena: 'admin123', rol: 'admin' }
+  ];
+
+  // Solo agregar si no existen
+  base.forEach(baseUser => {
+    if (!usuarios.find(u => u.usuario === baseUser.usuario)) {
+      usuarios.push(baseUser);
+    }
+  });
+
+  setUsuarios(usuarios);
 }
 
-// --- Variables para estado ---
-let usuariosFiltrados = [];
-let paginaActual = 1;
-const usuariosPorPagina = 5;
-let papeleraUsuarios = [];
 
-// --- Renderizar usuarios con paginación y búsqueda ---
-function renderUsuarios() {
+
+    function visualizarListaUsuarios() {
   const lista = document.getElementById("listaUsuarios");
-  const filtroInput = document.getElementById("filtroUsuario");
-  const filtro = filtroInput ? filtroInput.value.toLowerCase() : "";
+  renderUsuarios(); // Actualiza contenido por si acaso
+  lista.classList.remove("d-none"); // Muestra la lista si estaba oculta
+}
+function ocultarListaUsuarios() {
+  const lista = document.getElementById("listaUsuarios");
+  lista.classList.add("d-none");
+}
+
+
+
+    function renderUsuarios() {
+  const lista = document.getElementById("listaUsuarios");
   const usuarios = getUsuarios();
 
-  // Filtrar usuarios por nombre o rol
-  usuariosFiltrados = usuarios.filter(u => 
-    u.usuario.toLowerCase().includes(filtro) || u.rol.toLowerCase().includes(filtro)
-  );
+  // Limpiar el contenido antes de renderizar la lista
+  lista.innerHTML = '';
 
-  // Paginación
-  const inicio = (paginaActual - 1) * usuariosPorPagina;
-  const fin = inicio + usuariosPorPagina;
-  const usuariosPagina = usuariosFiltrados.slice(inicio, fin);
-
-  lista.innerHTML = "";
-
-  usuariosPagina.forEach((u, i) => {
+  // Mostrar la lista de usuarios
+  usuarios.forEach((u, i) => {
     const tr = document.createElement("tr");
+
     tr.innerHTML = `
       <td>${u.usuario}</td>
+      <td><span class="badge bg-secondary">${u.rol}</span></td>
       <td>
-        <select class="form-select form-select-sm" onchange="cambiarRolUsuario(${inicio + i}, this.value)">
-          <option value="mesero" ${u.rol === "mesero" ? "selected" : ""}>Mesero</option>
-          <option value="admin" ${u.rol === "admin" ? "selected" : ""}>Admin</option>
-        </select>
-      </td>
-      <td>
-        <button class="btn btn-sm btn-warning" onclick="editarUsuario(${inicio + i})">Editar</button>
-        <button class="btn btn-sm btn-danger" onclick="confirmarEliminarUsuario(${inicio + i})">Eliminar</button>
+        <button class="btn btn-sm btn-warning" onclick="editarUsuario(${i})">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${i})">Eliminar</button>
       </td>
     `;
+
     lista.appendChild(tr);
   });
-
-  renderPaginacion();
 }
 
-// --- Renderizar paginación ---
-function renderPaginacion() {
-  const paginacion = document.getElementById("paginacionUsuarios");
-  if (!paginacion) return;
 
-  const totalPaginas = Math.ceil(usuariosFiltrados.length / usuariosPorPagina);
-  paginacion.innerHTML = "";
 
-  for (let i = 1; i <= totalPaginas; i++) {
-    const btn = document.createElement("button");
-    btn.className = "btn btn-sm me-1 " + (i === paginaActual ? "btn-primary" : "btn-outline-primary");
-    btn.textContent = i;
-    btn.onclick = () => {
-      paginaActual = i;
+
+
+
+
+
+
+
+
+
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderInventarioAdmin();
+      mostrarHistorial();
+      renderPedidosCompletados();
       renderUsuarios();
-    };
-    paginacion.appendChild(btn);
-  }
-}
+    });
 
-// --- Cambiar rol usuario directamente ---
-function cambiarRolUsuario(index, nuevoRol) {
-  const usuarios = getUsuarios();
-  usuarios[index].rol = nuevoRol;
-  setUsuarios(usuarios);
-  mostrarAlertaBootstrap(`Rol cambiado a ${nuevoRol} para ${usuarios[index].usuario}`, "success");
-}
+  
+// Llenar selector de fechas únicas
+function llenarSelectorFechas() {
+  const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
+  const selector = document.getElementById('selectorFecha');
+  const fechasUnicas = [...new Set(historial.map(p => p.fecha))];
 
-// --- Agregar usuario con validación ---
-function agregarUsuario() {
-  const nombre = document.getElementById("nuevoUsuario").value.trim();
-  const contrasena = document.getElementById("nuevaContrasena").value.trim();
-  const rol = document.getElementById("rolUsuario").value;
-
-  if (!nombre || !contrasena) {
-    mostrarAlertaBootstrap("Completa todos los campos.", "warning");
-    return;
-  }
-
-  const usuarios = getUsuarios();
-  if (usuarios.find(u => u.usuario === nombre)) {
-    mostrarAlertaBootstrap("Ese usuario ya existe.", "danger");
-    return;
-  }
-
-  usuarios.push({ usuario: nombre, contrasena, rol });
-  setUsuarios(usuarios);
-  renderUsuarios();
-  mostrarAlertaBootstrap("Usuario agregado correctamente.", "success");
-  limpiarFormularioUsuario();
-}
-
-function limpiarFormularioUsuario() {
-  document.getElementById("nuevoUsuario").value = "";
-  document.getElementById("nuevaContrasena").value = "";
-  document.getElementById("rolUsuario").value = "mesero";
-}
-
-// --- Editar usuario (nombre y contraseña) ---
-function editarUsuario(index) {
-  const usuarios = getUsuarios();
-  const usuario = usuarios[index];
-
-  const nuevoNombre = prompt("Editar nombre de usuario:", usuario.usuario);
-  if (!nuevoNombre) return;
-
-  const nuevaContrasena = prompt("Editar contraseña:", usuario.contrasena);
-  if (!nuevaContrasena) return;
-
-  // Validar que nuevoNombre no esté repetido salvo el actual
-  if (usuarios.some((u, i) => u.usuario === nuevoNombre && i !== index)) {
-    mostrarAlertaBootstrap("Ese nombre de usuario ya está en uso.", "danger");
-    return;
-  }
-
-  usuarios[index].usuario = nuevoNombre;
-  usuarios[index].contrasena = nuevaContrasena;
-  setUsuarios(usuarios);
-  renderUsuarios();
-  mostrarAlertaBootstrap("Usuario editado correctamente.", "success");
-}
-
-// --- Confirmar eliminación con modal ---
-function confirmarEliminarUsuario(index) {
-  const usuario = getUsuarios()[index];
-  const modalEl = document.getElementById("modalConfirmEliminar");
-  if (!modalEl) {
-    // Crear modal dinámico si no existe
-    crearModalConfirmacion(() => eliminarUsuario(index), `¿Eliminar usuario "${usuario.usuario}"?`);
-  } else {
-    // Reutilizar modal existente
-    document.getElementById("modalConfirmMsg").textContent = `¿Eliminar usuario "${usuario.usuario}"?`;
-    document.getElementById("modalConfirmBtn").onclick = () => eliminarUsuario(index);
-    const modal = new bootstrap.Modal(modalEl);
-    modal.show();
-  }
-}
-
-function crearModalConfirmacion(callback, mensaje) {
-  const modalHTML = `
-    <div class="modal fade" id="modalConfirmEliminar" tabindex="-1" aria-labelledby="modalConfirmEliminarLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalConfirmEliminarLabel">Confirmación</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-          </div>
-          <div class="modal-body" id="modalConfirmMsg">${mensaje}</div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="button" class="btn btn-danger" id="modalConfirmBtn">Eliminar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  document.body.insertAdjacentHTML("beforeend", modalHTML);
-  const modalEl = document.getElementById("modalConfirmEliminar");
-  document.getElementById("modalConfirmBtn").onclick = () => {
-    callback();
-    const modal = bootstrap.Modal.getInstance(modalEl);
-    modal.hide();
-  };
-  const modal = new bootstrap.Modal(modalEl);
-  modal.show();
-}
-
-// --- Eliminar usuario y mandar a papelera ---
-function eliminarUsuario(index) {
-  const usuarios = getUsuarios();
-  const eliminado = usuarios.splice(index, 1)[0];
-  papeleraUsuarios.push(eliminado);
-  setUsuarios(usuarios);
-  renderUsuarios();
-  mostrarAlertaBootstrap(`Usuario "${eliminado.usuario}" eliminado.`, "warning");
-  renderBotonRestaurar();
-}
-
-// --- Restaurar usuario eliminado ---
-function restaurarUsuario() {
-  if (papeleraUsuarios.length === 0) {
-    mostrarAlertaBootstrap("No hay usuarios para restaurar.", "info");
-    return;
-  }
-  const usuarios = getUsuarios();
-  const restaurado = papeleraUsuarios.pop();
-  usuarios.push(restaurado);
-  setUsuarios(usuarios);
-  renderUsuarios();
-  mostrarAlertaBootstrap(`Usuario "${restaurado.usuario}" restaurado.`, "success");
-  renderBotonRestaurar();
-}
-
-// --- Renderizar botón restaurar ---
-function renderBotonRestaurar() {
-  const contenedor = document.getElementById("contenedorRestaurar");
-  if (!contenedor) return;
-  contenedor.innerHTML = "";
-  if (papeleraUsuarios.length > 0) {
-    const btn = document.createElement("button");
-    btn.className = "btn btn-sm btn-outline-success";
-    btn.textContent = `Restaurar usuario eliminado (${papeleraUsuarios.length})`;
-    btn.onclick = restaurarUsuario;
-    contenedor.appendChild(btn);
-  }
-}
-
-// --- Buscar usuarios (input oninput) ---
-function buscarUsuarios() {
-  paginaActual = 1; // reiniciar página al buscar
-  renderUsuarios();
-}
-
-// --- Exportar usuarios a CSV ---
-function exportarUsuariosCSV() {
-  const usuarios = getUsuarios();
-  if (usuarios.length === 0) {
-    mostrarAlertaBootstrap("No hay usuarios para exportar.", "info");
-    return;
-  }
-  const csvRows = [];
-  csvRows.push("Usuario,Rol");
-  usuarios.forEach(u => {
-    csvRows.push(`"${u.usuario}","${u.rol}"`);
+  selector.innerHTML = '<option value="todas">Todas</option>'; // Opción por defecto
+  fechasUnicas.forEach(fecha => {
+    const opt = document.createElement('option');
+    opt.value = fecha;
+    opt.textContent = fecha;
+    selector.appendChild(opt);
   });
-  const csvString = csvRows.join("\n");
-  const blob = new Blob([csvString], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "usuarios.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-  mostrarAlertaBootstrap("Usuarios exportados a CSV.", "success");
 }
 
-// --- Mostrar alertas Bootstrap ---
-function mostrarAlertaBootstrap(mensaje, tipo = "info") {
-  const contenedorAlertas = document.getElementById("alertasAdmin");
-  if (!contenedorAlertas) return;
+// Mostrar historial filtrado
+function mostrarHistorial() {
+  const historial = JSON.parse(localStorage.getItem('historialPedidos')) || [];
+  const listaHistorial = document.getElementById('listaHistorial');
+  const totalRecaudado = document.getElementById('totalRecaudado');
+  const filtro = document.getElementById('selectorFecha').value;
+  let total = 0;
 
-  const alerta = document.createElement("div");
-  alerta.className = `alert alert-${tipo} alert-dismissible fade show`;
-  alerta.role = "alert";
-  alerta.innerHTML = `
-    ${mensaje}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-  `;
-  contenedorAlertas.appendChild(alerta);
+  const pedidosFiltrados = filtro === 'todas' ? historial : historial.filter(p => p.fecha === filtro);
 
-  setTimeout(() => {
-    alerta.classList.remove("show");
-    alerta.classList.add("fade");
-    setTimeout(() => alerta.remove(), 500);
-  }, 5000);
+  listaHistorial.innerHTML = '';
+  pedidosFiltrados.forEach((pedido, index) => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+    li.textContent = `#${index + 1} | Mesa ${pedido.mesa} | ${pedido.producto} x${pedido.cantidad} = $${pedido.total.toFixed(2)} | ${pedido.fecha}`;
+    listaHistorial.appendChild(li);
+    total += pedido.total;
+  });
+
+  totalRecaudado.textContent = total.toFixed(2);
+  llenarSelectorFechas();
 }
 
-// --- Inicializar ---
-document.addEventListener("DOMContentLoaded", () => {
-  inicializarUsuariosBase();
-  renderUsuarios();
-  renderBotonRestaurar();
+// Al cambiar fecha, actualiza historial
+document.getElementById('selectorFecha').addEventListener('change', mostrarHistorial);
 
-  // Vincular evento búsqueda
-  const filtroInput = document.getElementById("filtroUsuario");
-  if (filtroInput) filtroInput.addEventListener("input", buscarUsuarios);
+document.getElementById("btnPDF").addEventListener("click", function () {
+  const seccion = document.getElementById("seccionPDF");
+
+  // Generar PDF
+  html2pdf().from(seccion).save("historial.pdf");
+
+ 
 });
+
+  document.getElementById("btnXML").addEventListener("click", function () {
+    // Ejemplo: obtener datos ficticios
+    const pedidos = document.querySelectorAll("#listaHistorial li");
+    let xmlContent = `<?xml version="1.0" encoding="UTF-8"?>\n<pedidos>\n`;
+
+    pedidos.forEach(pedido => {
+      const texto = pedido.textContent.trim();
+      xmlContent += `  <pedido>${texto}</pedido>\n`;
+    });
+
+    xmlContent += `</pedidos>`;
+
+    // Crear archivo y descargarlo
+    const blob = new Blob([xmlContent], { type: "application/xml" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "pedidos.xml";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+
+
+
+function generarYDescargarXML() {
+  const historial = JSON.parse(localStorage.getItem("historialPedidos")) || [];
+
+  let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<HistorialPedidos>\n`;
+
+  historial.forEach((pedido, index) => {
+    xml += `  <Pedido id="${index + 1}">\n`;
+    xml += `    <Fecha>${pedido.fecha}</Fecha>\n`;
+    xml += `    <Producto>${pedido.producto}</Producto>\n`;
+    xml += `    <Cantidad>${pedido.cantidad}</Cantidad>\n`;
+    xml += `    <Precio>${pedido.precio}</Precio>\n`;
+    xml += `    <Total>${pedido.total}</Total>\n`;
+    xml += `  </Pedido>\n`;
+  });
+
+  xml += `</HistorialPedidos>`;
+
+  const blob = new Blob([xml], { type: "application/xml" });
+  const url = URL.createObjectURL(blob);
+
+  const enlace = document.createElement("a");
+  enlace.href = url;
+  enlace.download = "historial.xml";
+  document.body.appendChild(enlace);
+  enlace.click();
+  document.body.removeChild(enlace);
+}
+
+
+    // Pedidos Completados
+    function renderPedidosCompletados() {
+      const cont = document.getElementById("pedidosCompletados");
+      const completados = JSON.parse(localStorage.getItem("kitchenCompleted")) || [];
+      if (!cont) return;
+      if (!completados.length) {
+        cont.innerHTML = "<p>No hay pedidos completados.</p>";
+        return;
+      }
+      cont.innerHTML = completados.map((p, i) => `
+        <div class="card mb-2">
+          <div class="card-header">
+            #${i + 1} - Mesa ${p.mesa} - ${p.usuario} - ${new Date(p.timestamp).toLocaleString()}
+          </div>
+          <ul class="list-group list-group-flush">
+            ${p.items.map(item => `<li class="list-group-item">${item.nombre}</li>`).join("")}
+          </ul>
+        </div>
+      `).join("");
+    }
+
+    // Usuarios
+function getUsuarios() {
+  let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+  const base = [
+    { usuario: 'mesero', contrasena: '1234', rol: 'mesero' },
+    { usuario: 'admin', contrasena: 'admin123', rol: 'admin' }
+  ];
+
+  // Agrega los usuarios base si no existen
+  base.forEach(baseUser => {
+    if (!usuarios.some(u => u.usuario === baseUser.usuario)) {
+      usuarios.push(baseUser);
+    }
+  });
+
+  // Guarda la lista actualizada en localStorage si se modificó
+  localStorage.setItem("usuarios", JSON.stringify(usuarios));
+
+  return usuarios;
+}
+
+    function setUsuarios(usuarios) {
+      localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    }
+    function agregarUsuario() {
+      const nombre = document.getElementById("nuevoUsuario").value.trim();
+      const contrasena = document.getElementById("nuevaContrasena").value.trim();
+      const rol = document.getElementById("rolUsuario").value;
+
+      if (!nombre || !contrasena) return alert("Completa todos los campos.");
+      const usuarios = getUsuarios();
+      if (usuarios.find(u => u.usuario === nombre)) return alert("Ese usuario ya existe.");
+
+      usuarios.push({ usuario: nombre, contrasena, rol });
+      setUsuarios(usuarios);
+      renderUsuarios();
+    }
+
+    function editarUsuario(index) {
+      const usuarios = getUsuarios();
+      const usuario = usuarios[index];
+
+      const nuevoNombre = prompt("Editar nombre de usuario:", usuario.usuario);
+      const nuevaContrasena = prompt("Editar contraseña:", usuario.contrasena);
+
+      if (nuevoNombre && nuevaContrasena) {
+        usuarios[index] = { usuario: nuevoNombre, contrasena: nuevaContrasena, rol: usuario.rol };
+        setUsuarios(usuarios);
+        renderUsuarios();
+      }
+    }
+
+    function eliminarUsuario(index) {
+      const usuarios = getUsuarios();
+      usuarios.splice(index, 1);
+      setUsuarios(usuarios);
+      renderUsuarios();
+    }
+
+ 
+
+    // Función de cierre de sesión
+    function cerrarSesion() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
