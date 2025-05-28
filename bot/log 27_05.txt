@@ -1,4 +1,4 @@
-// ── Datos de productos con stock y mínimos ────────────────────────────
+ // ── Datos de productos con stock y mínimos ────────────────────────────
 const productos = [
   { id: 1, nombre: "Hamburguesa Clásica", imagen: "img/CLASICA.png", ingredientes: ["Lechuga", "Tomate", "Queso", "Cebolla" , "Carne" , "Catsup" , "Pan"], stock: 10, minStock: 3 },
   { id: 2, nombre: "Hamburguesa BBQ", imagen: "img/BBQ.png", ingredientes: ["Bacon", "Lechuga", "Tomate", "Cebolla" , "Carne" , "Cebolla caramelizada", "Salsa BBQ" , "Pan"], stock: 5, minStock: 2 },
@@ -149,14 +149,14 @@ function renderPedidoMesero() {
       <div class="producto">
         <p><strong>${i}. ${item.nombre}</strong></p>
         <p>🧂 Ingredientes actuales: ${listaIngredientes}</p>
-        <p style="color:green;">➕ Agregados: ${agregados}</p>
-        <p style="color:red;">➖ Quitados: ${quitados}</p>
+
         <button class="btn btn-sm btn-danger" onclick="eliminarProducto(${i})">Eliminar</button>
         <button class="btn btn-sm btn-warning" onclick="editarProducto(${i})">Editar</button> <!-- Botón de editar -->
       </div>
     `;
   });
 }
+
 
 function editarProducto(index) {
   const pedido = getPedido();
@@ -218,8 +218,8 @@ function guardarEdicion(index) {
   const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditar'));
   if (modal) modal.hide();
 
-  // Redibujar el modal de la orden con los cambios
-  renderOrdenModal();
+  // Redibujar el pedido con los ingredientes actualizados
+  renderPedidoMesero(); // Llamada a renderPedidoMesero para actualizar la vista
 
   // Actualizar el contador del carrito
   actualizarContador();
@@ -262,34 +262,100 @@ function enviarACocina() {
   renderPedidoMesero();
   actualizarContador();
   alert("Enviado a cocina");
+  setKitchen(nuevosPedidos);
+// location.reload();  <-- ¡ya no necesario!
+actualizarVistaCocina();
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 // ── COCINA ────────────────────────────────────────────────────────────
+// ── COCINA ────────────────────────────────────────────────────────────
 function renderPedidosCocina() {
-  const cont = document.getElementById("pedidosCocina"); if (!cont) return;
-  const k = getKitchen(); cont.innerHTML = "";
-  if (!k.length) {
+  const cont = document.getElementById("pedidosCocina");
+  if (!cont) return;
+
+  const pedidos = getKitchen(); // Obtener pedidos almacenados
+  cont.innerHTML = ""; // Limpiar contenido anterior
+
+  if (!pedidos.length) {
     cont.innerHTML = "<p>No hay pedidos.</p>";
     return;
   }
-  const tbl = document.createElement("table"); tbl.className = "table";
-  tbl.innerHTML = `<thead><tr><th>Mesa</th><th>Usuario</th><th>Productos</th><th>Acción</th></tr></thead>`;
-  const tb = document.createElement("tbody");
-  k.forEach((pd, i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${pd.mesa}</td><td>${pd.usuario}</td><td><ul>${pd.items.map(x => `<li>${x.nombre}</li>`).join("")}</ul></td>
-      <td><button class="btn btn-sm btn-success" onclick="completarPedido(${i})">Listo</button></td>`;
-    tb.appendChild(tr);
+
+  // Contenedor general en formato grid
+  const grid = document.createElement("div");
+  grid.className = "grid";
+
+  pedidos.forEach((pedido, i) => {
+    // Crear tarjeta contenedora del pedido
+    const card = document.createElement("div");
+    card.className = "order status-pending"; // Clase de estado fija: 'pendiente'
+
+    // Encabezado con número de mesa y usuario
+    const header = document.createElement("div");
+    header.className = "order-header";
+    header.textContent = `Mesa ${pedido.mesa} - ${pedido.usuario}`;
+    card.appendChild(header);
+
+    // Cuerpo con la lista de productos
+    const body = document.createElement("div");
+    body.className = "order-body";
+
+    const ul = document.createElement("ul");
+    pedido.items.forEach(item => {
+      const li = document.createElement("li");
+
+      // Mostrar nombre del producto
+      let texto = `${item.nombre}`;
+
+      // Mostrar ingredientes seleccionados
+      if (item.ingredientes && item.ingredientes.length > 0) {
+        texto += ` - Ingredientes: ${item.ingredientes.join(", ")}`;
+      }
+
+      // Mostrar ingredientes extras (si los hay)
+      if (item.extra && item.extra.length > 0) {
+        texto += ` - Extras: ${item.extra}`;
+      }
+
+      li.textContent = texto;
+      ul.appendChild(li);
+    });
+
+    body.appendChild(ul);
+    card.appendChild(body);
+
+    // Botón para marcar pedido como completado
+    const footer = document.createElement("div");
+    footer.className = "order-footer";
+    const button = document.createElement("button");
+    button.className = "btn btn-success";
+    button.textContent = "Marcar como completado";
+    button.onclick = () => completarPedido(i);
+    footer.appendChild(button);
+    card.appendChild(footer);
+
+    grid.appendChild(card);
   });
-  tbl.appendChild(tb); cont.appendChild(tbl);
+
+  cont.appendChild(grid);
 }
 
-function completarPedido(i) {
-  const k = getKitchen(), done = k.splice(i, 1)[0]; setKitchen(k);
-  const c = JSON.parse(localStorage.getItem("kitchenCompleted")) || []; c.push(done); localStorage.setItem("kitchenCompleted", JSON.stringify(c));
+// Función para marcar pedido como completado
+function completarPedido(index) {
+  const pedidos = getKitchen();
+  const pedido = pedidos[index];
+  
+  // Cambiar el estado del pedido
+  pedido.estado = "completado";
+  
+  // Actualizar la lista de pedidos
+  setKitchen(pedidos);
+
+  // Volver a renderizar los pedidos
   renderPedidosCocina();
 }
+
 
 // ================= ADMIN =====================
 
@@ -467,24 +533,7 @@ function renderOrdenModal() {
   }
 }
 
-function enviarAlMesero() {
-  const pedido = getPedido();
-  if (!pd.length) return alert("No hay nada.");
 
-  const m = JSON.parse(localStorage.getItem("ordenesMesero")) || [];
-  m.push({
-    mesa: localStorage.getItem("mesa"),
-    usuario: localStorage.getItem("usuario"),
-    items: pd,
-    timestamp: Date.now()
-  });
-  localStorage.setItem("ordenesMesero", JSON.stringify(m));
-  localStorage.setItem("ordenParaMesero", JSON.stringify(pedido)); // Guarda la orden en el localStorage
-  setPedido([]);  // Limpia el carrito
-  renderPedidoMesero();
-  actualizarContador();
-  alert("Pedido enviado al mesero");
-}
 
 
 
