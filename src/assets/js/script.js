@@ -142,8 +142,59 @@ function mostrarAlertaStockMinimo(nombreProducto) {
   }, 5000);
 }
 
-// ── Inicialización al cargar la página ───────────────────────────────────
+// ── Modal: renderizar pedido ─────────────────────────────────────────────
+function renderOrdenModal() {
+  const lista = document.getElementById("detalleOrden");
+  const mensajeVacio = document.getElementById("mensajeVacio");
+  const pedido = getPedido();
+
+  lista.innerHTML = "";
+
+  if (pedido.length === 0) {
+    mensajeVacio.style.display = "block";
+  } else {
+    mensajeVacio.style.display = "none";
+
+    pedido.forEach(item => {
+      const li = document.createElement("li");
+      li.className = "list-group-item";
+      li.textContent = `${item.nombre}` + (item.ingredientes?.length ? ` (${item.ingredientes.join(", ")})` : "");
+      lista.appendChild(li);
+    });
+  }
+}
+
+// ── Enviar pedido al mesero ─────────────────────────────────────────────
+function enviarAlMesero() {
+  const pedido = getPedido();
+
+  if (pedido.length === 0) {
+    alert("No tienes productos en el pedido.");
+    return;
+  }
+
+  alert("Pedido enviado al mesero.");
+
+  setPedido([]);
+
+  const modal = bootstrap.Modal.getInstance(document.getElementById('modalOrden'));
+  if (modal) modal.hide();
+
+  actualizarContador();
+}
+
+// ── Eventos al cargar la página ──────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
   renderMenu();
   actualizarContador();
+
+  const modalOrden = document.getElementById("modalOrden");
+  if (modalOrden) {
+    modalOrden.addEventListener("show.bs.modal", renderOrdenModal);
+  }
+
+  const btnEnviarMesero = document.getElementById("btnEnviarMesero");
+  if (btnEnviarMesero) {
+    btnEnviarMesero.addEventListener("click", enviarAlMesero);
+  }
 });
