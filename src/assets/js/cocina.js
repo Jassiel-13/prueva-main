@@ -2,7 +2,7 @@
 const productos = [
   { id: 1, nombre: "Hamburguesa Clásica", imagen: "img/CLASICA.png", ingredientes: ["Lechuga", "Tomate", "Queso", "Cebolla", "Carne", "Catsup", "Pan"], stock: 10, minStock: 3 },
   { id: 2, nombre: "Hamburguesa BBQ", imagen: "img/BBQ.png", ingredientes: ["Bacon", "Lechuga", "Tomate", "Cebolla", "Carne", "Cebolla caramelizada", "Salsa BBQ", "Pan"], stock: 5, minStock: 2 },
-  // ... (otros productos omitidos para brevedad)
+  // ... otros productos omitidos por brevedad
   { id: 19, nombre: "Agua de Limón", imagen: "img/LIMON.png", ingredientes: [], stock: 10, minStock: 3 }
 ];
 
@@ -121,7 +121,7 @@ function renderPedidoMesero() {
 
     cont.innerHTML += `
       <div class="producto">
-        <p><strong>${i}. ${item.nombre}</strong></p>
+        <p><strong>${i + 1}. ${item.nombre}</strong></p>
         <p>🧂 Ingredientes actuales: ${listaIngredientes}</p>
         <p style="color:green;">➕ Agregados: ${agregados}</p>
         <p style="color:red;">➖ Quitados: ${quitados}</p>
@@ -210,10 +210,12 @@ function enviarACocina() {
   const usuario = localStorage.getItem("usuario");
   const timestamp = Date.now();
 
+  // Añadimos estado 'pendiente'
   const k = getKitchen();
-  k.push({ mesa, usuario, items: pd, timestamp, estado: "pendiente" });  // Añadimos estado 'pendiente'
+  k.push({ mesa, usuario, items: pd, timestamp, estado: "pendiente" });
   setKitchen(k);
 
+  // Guardar en historial
   const historial = getHistorial();
   historial.push(...pd.map(p => ({
     id: p.id,
