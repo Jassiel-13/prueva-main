@@ -7,6 +7,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="src/assets/js/log.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+
 </head>
 <body class="container py-4">
 
@@ -29,13 +31,22 @@
     </table>
   </section>
 
+
+
+
   <!-- Reporte Ventas -->
   <section class="mt-5">
     <h3>📊 Historial de Pedidos</h3>
+<div>
+  <label for="selectorFecha">Filtrar por fecha:</label>
+  <select id="selectorFecha" class="form-select"></select>
+</div>
     <div id="contenidoHistorial">
       <ul id="listaHistorial" class="list-group mb-3"></ul>
       <p><strong>Total Recolectado:</strong> $<span id="totalRecaudado">0.00</span></p>
     </div>
+
+
     <button id="btnPDF" class="btn btn-danger">Descargar PDF</button>
   </section>
 
