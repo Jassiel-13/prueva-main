@@ -1,0 +1,123 @@
+body {
+  font-family: 'Kavoon', cursive;
+  background-color: #FFC986;
+  color: #FFFFFF;
+  padding-top: 20px;
+}
+
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .table {
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .table thead {
+      background-color: #fbe3ad;
+      font-weight: 600;
+    }
+
+    .table th, .table td {
+      text-align: center;
+      padding: 15px;
+    }
+
+    .table td button {
+      padding: 8px 15px;
+      border-radius: 30px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .table td button.btn-primary {
+      background-color: #5cb85c;
+      color: white;
+    }
+
+    .table td button.btn-primary:hover {
+      background-color: #449d44;
+      transform: scale(1.05);
+    }
+
+    .table td button.btn-danger {
+      background-color: #d9534f;
+      color: white;
+    }
+
+    .table td button.btn-danger:hover {
+      background-color: #c9302c;
+      transform: scale(1.05);
+    }
+
+    .container {
+      padding-top: 50px;
+    }
+
+    #historialSection {
+      margin-top: 50px;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    #btnPDF {
+      margin-top: 20px;
+    }
+
+
+
+
+
+
+
+    /* Posicionamiento del botón en la esquina superior derecha */
+.btn-cerrar-sesion {
+  background-color: #FF7A7A; /* Rojo suave */
+  color: #FFFFFF;
+  font-weight: bold;
+  font-family: 'Kavoon', cursive;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 1rem;
+  
+  /* Posicionamiento en la esquina superior derecha */
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10; /* Asegura que el botón esté encima de otros elementos */
+}
+
+/* Efecto hover para el botón */
+.btn-cerrar-sesion:hover {
+  background-color: #e96565; /* Rojo más oscuro */
+  transform: scale(1.05); /* Le da un efecto de agrandarse */
+}
+
+/* Efecto focus para el botón */
+.btn-cerrar-sesion:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 122, 122, 0.7); /* Resaltado cuando se selecciona */
+}
+
+/* Efecto active cuando el botón es presionado */
+.btn-cerrar-sesion:active {
+  background-color: #d75656; /* Rojo más oscuro */
+  transform: scale(0.98); /* Le da un efecto de "presionar" */
+}

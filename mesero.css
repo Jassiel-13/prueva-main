@@ -1,0 +1,132 @@
+body {
+  background-color: #f6aa4e;
+  font-family: 'Kavoon', cursive;
+  padding: 20px;
+  margin: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #fff7e6;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+h3 {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: #4e2e1f;
+}
+
+#pedidoMesero {
+  background: #fff0c9;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+}
+
+p {
+  font-size: 18px;
+  color: #4e2e1f;
+  margin-bottom: 10px;
+}
+
+.producto {
+  background-color: #fcd385;
+  border: 2px dashed #c97e20;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 15px 0;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.producto p {
+  margin: 6px 0;
+  font-size: 16px;
+}
+
+.botones {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.botones button {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  color: white;
+}
+
+.vaciar {
+  background-color: #e74c3c;
+}
+
+.vaciar:hover {
+  background-color: #c0392b;
+}
+
+.enviar {
+  background-color: #27ae60;
+}
+
+.enviar:hover {
+  background-color: #1e8449;
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-sm:hover {
+  background-color: #c0392b;
+}
+
+/* Botón de cerrar sesión */
+.btn-cerrar-sesion {
+  background-color: #FF7A7A;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-family: 'Kavoon', cursive;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  font-size: 1rem;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.btn-cerrar-sesion:hover {
+  background-color: #e96565;
+  transform: scale(1.05);
+}
+
+.btn-cerrar-sesion:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 122, 122, 0.7);
+}
+
+.btn-cerrar-sesion:active {
+  background-color: #d75656;
+  transform: scale(0.98);
+}
